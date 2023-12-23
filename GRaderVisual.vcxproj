@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{902A613C-FFB9-4794-84B8-89E8832886DA}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>GRadarVisual</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>5.15.2_msvc2019_64</QtInstall>
+    <QtModules>core;xml;opengl;network;gui;widgets</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>5.15.2_msvc2019_64</QtInstall>
+    <QtModules>core;xml;opengl;network;gui;widgets</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\;map;visual3d;metstar;..\GMapper2D;..\graphlib\Debug\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FP_FAST_FMA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalOptions>/execution-charset:utf-8</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(OutDir);..\graphlib\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GMapper2D.lib;OpenGL32.Lib;vtkCommonCore-9.1.lib;vtkCommonDataModel-9.1.lib;vtkCommonExecutionModel-9.1.lib;vtkFiltersCore-9.1.lib;vtkFiltersSources-9.1.lib;vtkFiltersStatistics-9.1.lib;vtkGUISupportQt-9.1.lib;vtkImagingCore-9.1.lib;vtkImagingGeneral-9.1.lib;vtkInteractionStyle-9.1.lib;vtkInteractionWidgets-9.1.lib;vtkIOImage-9.1.lib;vtkRenderingAnnotation-9.1.lib;vtkRenderingCore-9.1.lib;vtkRenderingOpenGL2-9.1.lib;vtkRenderingVolumeOpenGL2-9.1.lib;vtkRenderingVolume-9.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\;map;visual3d;metstar;..\GMapper2D;..\graphlib\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FP_FAST_FMA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OpenMPSupport>true</OpenMPSupport>
+      <AdditionalOptions>/execution-charset:utf-8</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(OutDir);..\graphlib\Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GMapper2D.lib;OpenGL32.Lib;vtkCommonCore-9.1.lib;vtkCommonDataModel-9.1.lib;vtkCommonExecutionModel-9.1.lib;vtkFiltersCore-9.1.lib;vtkFiltersSources-9.1.lib;vtkFiltersStatistics-9.1.lib;vtkGUISupportQt-9.1.lib;vtkImagingCore-9.1.lib;vtkImagingGeneral-9.1.lib;vtkInteractionStyle-9.1.lib;vtkInteractionWidgets-9.1.lib;vtkIOImage-9.1.lib;vtkRenderingAnnotation-9.1.lib;vtkRenderingCore-9.1.lib;vtkRenderingOpenGL2-9.1.lib;vtkRenderingVolumeOpenGL2-9.1.lib;vtkRenderingVolume-9.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="BaseDialog.cpp" />
+    <ClCompile Include="tanimationconfigdlg.cpp" />
+    <ClCompile Include="tradarvisualwnd.cpp" />
+    <ClCompile Include="visual3d\ggraphview.cpp" />
+    <ClCompile Include="visual3d\gopacitytable.cpp" />
+    <ClCompile Include="visual3d\gopacityview.cpp" />
+    <ClCompile Include="visual3d\gslicecolormap.cpp" />
+    <ClCompile Include="gconfig.cpp" />
+    <ClCompile Include="gcolorbarlayer.cpp" />
+    <ClCompile Include="map\gdbfreader.cpp" />
+    <ClCompile Include="map\gshapelayer.cpp" />
+    <ClCompile Include="map\gshapereader.cpp" />
+    <ClCompile Include="metstar\gradaralgorithm.cpp" />
+    <ClCompile Include="metstar\gradarvolume.cpp" />
+    <ClCompile Include="visual3d\gvisualwidget.cpp" />
+    <ClCompile Include="metstar\grader2dlayer.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="metstar\geneCodeData.cpp" />
+    <ClCompile Include="metstar\genericTask.cpp" />
+    <ClCompile Include="metstar\generic_basedata_cv.cpp" />
+    <ClCompile Include="metstar\NameIndex.cpp" />
+    <ClCompile Include="visual3d\tgriddingconfigdlg.cpp" />
+    <ClCompile Include="visual3d\topacitydlg.cpp" />
+    <ClCompile Include="visual3d\tradar3dwnd.cpp" />
+    <ClCompile Include="visual3d\trenderconfigdlg.cpp" />
+    <ClCompile Include="visual3d\tsliceconfigdlg.cpp" />
+    <ClCompile Include="visual3d\gvtkutil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="visual3d\topacitydlg.h" />
+    <QtMoc Include="visual3d\trenderconfigdlg.h" />
+    <QtMoc Include="visual3d\tgriddingconfigdlg.h" />
+    <QtMoc Include="tradarvisualwnd.h" />
+    <QtMoc Include="tanimationconfigdlg.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="visual3d\ggraphview.h" />
+    <ClInclude Include="visual3d\gopacitytable.h" />
+    <QtMoc Include="visual3d\gopacityview.h" />
+    <ClInclude Include="visual3d\gvisualwidget.h" />
+    <QtMoc Include="visual3d\tsliceconfigdlg.h" />
+    <QtMoc Include="visual3d\tradar3dwnd.h" />
+    <ClInclude Include="visual3d\gvtkutil.h" />
+    <QtMoc Include="BaseDialog.h" />
+    <ClInclude Include="visual3d\gslicecolormap.h" />
+    <ClInclude Include="gconfig.h" />
+    <ClInclude Include="gcolorbarlayer.h" />
+    <ClInclude Include="map\gdbfreader.h" />
+    <ClInclude Include="map\gshapelayer.h" />
+    <ClInclude Include="map\gshapereader.h" />
+    <ClInclude Include="metstar\gradaralgorithm.h" />
+    <ClInclude Include="metstar\gradarvolume.h" />
+    <ClInclude Include="metstar\grader2dlayer.h" />
+    <ClInclude Include="metstar\geneCodeData.h" />
+    <ClInclude Include="metstar\genericBasedata.h" />
+    <ClInclude Include="metstar\genericHeader.h" />
+    <ClInclude Include="metstar\genericTask.h" />
+    <ClInclude Include="metstar\generic_basedata_cv.h" />
+    <ClInclude Include="metstar\NameIndex.h" />
+    <ClInclude Include="metstar\radar_dt.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="tanimationconfigdlg.ui" />
+    <QtUic Include="tradarvisualwnd.ui" />
+    <QtUic Include="visual3d\tgriddingconfigdlg.ui" />
+    <QtUic Include="visual3d\topacitydlg.ui" />
+    <QtUic Include="visual3d\tradar3dwnd.ui" />
+    <QtUic Include="visual3d\trenderconfigdlg.ui" />
+    <QtUic Include="visual3d\tsliceconfigdlg.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="gradarvisual.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="metstar\gradarvolume" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GRadarVisual.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\GRadarVisual.ico" />
+    <Image Include="Resources\GRadarVisual.png" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

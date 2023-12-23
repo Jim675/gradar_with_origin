@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TRadar3DWndClass</class>
+ <widget class="QMainWindow" name="TRadar3DWndClass">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>856</width>
+    <height>625</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>雷达数据三维可视化</string>
+  </property>
+  <property name="iconSize">
+   <size>
+    <width>32</width>
+    <height>32</height>
+   </size>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>856</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>文件(&amp;F)</string>
+    </property>
+    <addaction name="actMovePrev"/>
+    <addaction name="actMoveNext"/>
+    <addaction name="separator"/>
+    <addaction name="actSnap"/>
+    <addaction name="actSaveVolume"/>
+    <addaction name="separator"/>
+    <addaction name="actClose"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>视图(&amp;V)</string>
+    </property>
+    <addaction name="actRenderSetting"/>
+    <addaction name="actShowVolume"/>
+    <addaction name="actShowSlice"/>
+    <addaction name="actSliceSetting"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actSnap"/>
+   <addaction name="actSaveVolume"/>
+   <addaction name="actMovePrev"/>
+   <addaction name="actMoveNext"/>
+   <addaction name="separator"/>
+   <addaction name="actRenderSetting"/>
+   <addaction name="actShowVolume"/>
+   <addaction name="actShowSlice"/>
+   <addaction name="actSliceSetting"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actSnap">
+   <property name="icon">
+    <iconset resource="../gradarvisual.qrc">
+     <normaloff>:/images/Resources/4截图.png</normaloff>:/images/Resources/4截图.png</iconset>
+   </property>
+   <property name="text">
+    <string>屏幕截图</string>
+   </property>
+  </action>
+  <action name="actSaveVolume">
+   <property name="icon">
+    <iconset resource="../gradarvisual.qrc">
+     <normaloff>:/images/Resources/5保存.png</normaloff>:/images/Resources/5保存.png</iconset>
+   </property>
+   <property name="text">
+    <string>保存数据体</string>
+   </property>
+  </action>
+  <action name="actClose">
+   <property name="text">
+    <string>关闭</string>
+   </property>
+  </action>
+  <action name="actRenderSetting">
+   <property name="icon">
+    <iconset resource="../gradarvisual.qrc">
+     <normaloff>:/images/Resources/6设置.png</normaloff>:/images/Resources/6设置.png</iconset>
+   </property>
+   <property name="text">
+    <string>渲染设置</string>
+   </property>
+  </action>
+  <action name="actShowVolume">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../gradarvisual.qrc">
+     <normaloff>:/images/Resources/数据体.png</normaloff>:/images/Resources/数据体.png</iconset>
+   </property>
+   <property name="text">
+    <string>数据体模式</string>
+   </property>
+  </action>
+  <action name="actShowSlice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../gradarvisual.qrc">
+     <normaloff>:/images/Resources/切片模式.png</normaloff>:/images/Resources/切片模式.png</iconset>
+   </property>
+   <property name="text">
+    <string>切片模式</string>
+   </property>
+  </action>
+  <action name="actSliceSetting">
+   <property name="icon">
+    <iconset resource="../gradarvisual.qrc">
+     <normaloff>:/images/Resources/切片设置.png</normaloff>:/images/Resources/切片设置.png</iconset>
+   </property>
+   <property name="text">
+    <string>切片设置</string>
+   </property>
+  </action>
+  <action name="actMovePrev">
+   <property name="icon">
+    <iconset resource="../gradarvisual.qrc">
+     <normaloff>:/images/Resources/1上一个.png</normaloff>:/images/Resources/1上一个.png</iconset>
+   </property>
+   <property name="text">
+    <string>上一个</string>
+   </property>
+  </action>
+  <action name="actMoveNext">
+   <property name="icon">
+    <iconset resource="../gradarvisual.qrc">
+     <normaloff>:/images/Resources/3下一个.png</normaloff>:/images/Resources/3下一个.png</iconset>
+   </property>
+   <property name="text">
+    <string>下一个</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="../gradarvisual.qrc"/>
+ </resources>
+ <connections/>
+</ui>

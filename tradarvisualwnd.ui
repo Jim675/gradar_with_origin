@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TRadarVisualWndClass</class>
+ <widget class="QMainWindow" name="TRadarVisualWndClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>919</width>
+    <height>641</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>GRadarVisual</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="gradarvisual.qrc">
+    <normaloff>:/images/Resources/GRadarVisual.png</normaloff>:/images/Resources/GRadarVisual.png</iconset>
+  </property>
+  <property name="iconSize">
+   <size>
+    <width>32</width>
+    <height>32</height>
+   </size>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QCheckBox" name="mInterpCBox">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>520</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>插值</string>
+    </property>
+    <property name="icon">
+     <iconset resource="gradarvisual.qrc">
+      <normaloff>:/images/Resources/插值.png</normaloff>:/images/Resources/插值.png</iconset>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="mRadarCBox">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>520</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>雷达</string>
+    </property>
+    <property name="icon">
+     <iconset resource="gradarvisual.qrc">
+      <normaloff>:/images/Resources/雷达.png</normaloff>:/images/Resources/雷达.png</iconset>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>919</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>文件</string>
+    </property>
+    <addaction name="actFileOpen"/>
+    <addaction name="actClearFileList"/>
+    <addaction name="separator"/>
+    <addaction name="actExit"/>
+   </widget>
+   <widget class="QMenu" name="menuAnimation">
+    <property name="title">
+     <string>动画</string>
+    </property>
+    <addaction name="actAnimationStart"/>
+    <addaction name="actAnimationStop"/>
+    <addaction name="actAnimationSettings"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>视图</string>
+    </property>
+    <addaction name="actViewReset"/>
+    <addaction name="actInterpRadarData"/>
+    <addaction name="actShowRadarData"/>
+    <addaction name="actSelectRect"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>帮助(&amp;H)</string>
+    </property>
+    <addaction name="actHelp"/>
+    <addaction name="actAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuAnimation"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actFileOpen"/>
+   <addaction name="separator"/>
+   <addaction name="actViewReset"/>
+   <addaction name="actSelectRect"/>
+   <addaction name="actInterpRadarData"/>
+   <addaction name="actShowRadarData"/>
+   <addaction name="separator"/>
+   <addaction name="actAnimationStart"/>
+   <addaction name="actAnimationStop"/>
+   <addaction name="actAnimationSettings"/>
+  </widget>
+  <widget class="QDockWidget" name="mFileListDock">
+   <property name="windowTitle">
+    <string>文件列表</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <widget class="QListWidget" name="mFileListWidget">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>9</y>
+       <width>154</width>
+       <height>252</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="mRadarDock">
+   <property name="windowTitle">
+    <string>雷达属性</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_4">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QFormLayout" name="mRadarAttrLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>站点名称：</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="mSiteNameLabel">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>站点编号：</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="mSiteCodeLabel">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>站点经度：</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="mLonLabel">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>站点纬度：</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="mLatLabel">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>仰角数量：</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="mSurfsCountLabel">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>时间：</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="mTimeLabel">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="mSurfsLayout"/>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>93</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actImportNodes">
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/文件.png</normaloff>:/images/Resources/文件.png</iconset>
+   </property>
+   <property name="text">
+    <string>Import Nodes</string>
+   </property>
+   <property name="iconText">
+    <string>Input Range</string>
+   </property>
+   <property name="toolTip">
+    <string>Import Nodes</string>
+   </property>
+  </action>
+  <action name="actLoadSPS">
+   <property name="text">
+    <string>Load SPS</string>
+   </property>
+  </action>
+  <action name="actShow3DMap">
+   <property name="text">
+    <string>Show 3D Map</string>
+   </property>
+  </action>
+  <action name="actMake3DMap">
+   <property name="text">
+    <string>Make 3D Map</string>
+   </property>
+  </action>
+  <action name="actServer0">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Server 0</string>
+   </property>
+  </action>
+  <action name="actServer1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Server 1</string>
+   </property>
+  </action>
+  <action name="actServer2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Server 2</string>
+   </property>
+  </action>
+  <action name="actServer3">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Server 3</string>
+   </property>
+  </action>
+  <action name="actTestServer">
+   <property name="text">
+    <string>Test Server</string>
+   </property>
+  </action>
+  <action name="actSelectRect">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/选择范围.png</normaloff>:/images/Resources/选择范围.png</iconset>
+   </property>
+   <property name="text">
+    <string>选择三维可视化区域</string>
+   </property>
+  </action>
+  <action name="actDownload">
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/downloads.png</normaloff>:/images/Resources/downloads.png</iconset>
+   </property>
+   <property name="text">
+    <string>Download Selected Range</string>
+   </property>
+   <property name="iconText">
+    <string>Download Selected Range</string>
+   </property>
+   <property name="toolTip">
+    <string>Download Selected Range</string>
+   </property>
+  </action>
+  <action name="actSwitchMap">
+   <property name="text">
+    <string>Switch Map</string>
+   </property>
+  </action>
+  <action name="actClearCache">
+   <property name="text">
+    <string>Clear Cache</string>
+   </property>
+  </action>
+  <action name="actFileOpen">
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/文件.png</normaloff>:/images/Resources/文件.png</iconset>
+   </property>
+   <property name="text">
+    <string>打开雷达文件(&amp;O)</string>
+   </property>
+   <property name="toolTip">
+    <string>打开雷达文件</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actClearFileList">
+   <property name="text">
+    <string>清空文件列表</string>
+   </property>
+   <property name="toolTip">
+    <string>清空文件列表</string>
+   </property>
+  </action>
+  <action name="actionFileList">
+   <property name="text">
+    <string>列表</string>
+   </property>
+  </action>
+  <action name="actAnimationStart">
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/播放.png</normaloff>:/images/Resources/播放.png</iconset>
+   </property>
+   <property name="text">
+    <string>开始播放</string>
+   </property>
+   <property name="toolTip">
+    <string>开始播放</string>
+   </property>
+  </action>
+  <action name="actAnimationStop">
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/暂停.png</normaloff>:/images/Resources/暂停.png</iconset>
+   </property>
+   <property name="text">
+    <string>停止播放</string>
+   </property>
+   <property name="toolTip">
+    <string>停止播放</string>
+   </property>
+  </action>
+  <action name="actAnimationSettings">
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/视频设置.png</normaloff>:/images/Resources/视频设置.png</iconset>
+   </property>
+   <property name="text">
+    <string>设置</string>
+   </property>
+  </action>
+  <action name="actViewReset">
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/视图.png</normaloff>:/images/Resources/视图.png</iconset>
+   </property>
+   <property name="text">
+    <string>重置UI</string>
+   </property>
+  </action>
+  <action name="actInterpRadarData">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/插值.png</normaloff>:/images/Resources/插值.png</iconset>
+   </property>
+   <property name="text">
+    <string>插值雷达数据</string>
+   </property>
+  </action>
+  <action name="actShowRadarData">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="gradarvisual.qrc">
+     <normaloff>:/images/Resources/雷达.png</normaloff>:/images/Resources/雷达.png</iconset>
+   </property>
+   <property name="text">
+    <string>显示雷达数据</string>
+   </property>
+  </action>
+  <action name="actExit">
+   <property name="text">
+    <string>退出</string>
+   </property>
+  </action>
+  <action name="actHelp">
+   <property name="text">
+    <string>帮助内容</string>
+   </property>
+  </action>
+  <action name="actAbout">
+   <property name="text">
+    <string>关于</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="gradarvisual.qrc"/>
+ </resources>
+ <connections/>
+</ui>
