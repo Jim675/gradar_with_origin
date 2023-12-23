@@ -19,7 +19,7 @@ VTK_MODULE_INIT(vtkRenderingVolumeOpenGL2);
 
 
 // 优先使用NVIDIA独显运行
-extern "C" __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+// extern "C" __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 
 int main(int argc, char* argv[])
 {

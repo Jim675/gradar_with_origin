@@ -1,6 +1,7 @@
 #include "ggraphview.h"
 #include "gutils.h"
 #include <QString>
+#include <cmath>
 
 GGraphView::GGraphView(QWidget * parent /*= 0*/, Qt::WindowFlags f /*= 0*/)
 	:QWidget(parent)

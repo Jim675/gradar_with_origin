@@ -159,9 +159,6 @@ bool VTKUtil::readColorMap(const QString& path, const QString& tag, vtkColorTran
 			if (token == QXmlStreamReader::TokenType::Characters)
 			{
 				const QStringRef text = reader.text();
-				//qDebug() << "level:" << level
-				//    << ", desp:" << desp
-				//    << ", text:" << text;
 				bool ok = false;
 				double x = level.toDouble(&ok);
 				QColor color(text);
@@ -170,9 +167,7 @@ bool VTKUtil::readColorMap(const QString& path, const QString& tag, vtkColorTran
 					hasError = true;
 					break;
 				}
-				//qDebug() << "redF:" << color.redF()
-				//    << ", greenF:" << color.greenF()
-				//    << ", blueF:" << color.blueF();
+				
 				colorTF->AddRGBPoint(x, color.redF(), color.greenF(), color.blueF(), 1.0, 1.0);
 			}
 			else

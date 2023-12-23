@@ -8,10 +8,13 @@
 #include <QTimer>
 #include <QButtonGroup>
 #include <QSet>
+#include <QTranslator>
 #include <vtkSmartPointer.h>
 #include <vtkColorTransferFunction.h>
 #include "ui_tradarvisualwnd.h"
 #include "gmaptile.h"
+#include "generic_basedata_cv.h"
+
 
 class GMapView;
 class GRader2DLayer;
@@ -42,13 +45,20 @@ private:
 
 	bool							mIsAnimate;			// 当前是否在播放雷达2D动画
 	QTimer							mAnimateTimer;		// 播放雷达2D动画的定时器
+	bool							mIsPredict;         //当前是否进行预测
 
+	QVector<basedataImage*>			mBdiList;			// 雷达及数据列表
+
+	QTranslator*                    mTranslator;
 	TRadar3DWnd*					mLastRadar3DWnd = nullptr;
 
 protected:
 
 	// 打开雷达文件列表
 	void loadRadarFiles(const QStringList& fileList);
+
+	// 保存修改后的雷达文件
+	void saveRadarFile(const QString& filepath, int mIndex);
 
 	// 设置是否播放雷达2D动画
 	void setAnimate(bool mIsAnimate);
@@ -63,6 +73,8 @@ public:
 	// 将视图移动到指定矩形范围的中心
 	void centerOn(const QRectF& rc);
 
+	void setDeskTopWidget();
+
 private slots:
 
 	void on_actTestServer_triggered();
@@ -71,6 +83,9 @@ private slots:
 
 	// 打开文件
 	void on_actFileOpen_triggered();
+
+	// 保存文件
+	void on_actFileSave_triggered();
 
 	// 清空文件列表
 	void on_actClearFileList_triggered();
@@ -113,6 +128,17 @@ private slots:
     void onSelectedRect(const QRect& rect);
 
 	void radar3DWndDestroyed(QObject* pObj= Q_NULLPTR);
+	//预测2023-7-31
+	void on_actPredict_triggered();
+
+	//停止预测
+	void on_actStop_triggered();
+	//将ImageData每层分离并保存
+	//void on_actSave_triggered();
+
+	// 语言切换
+	void on_actCN_triggered();
+	void on_actEN_triggered();
 };
 
 #endif // TMAPPERWND_H

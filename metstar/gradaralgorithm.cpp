@@ -6,7 +6,6 @@
 #include <gmapcoordconvert.h>
 
 #include <cmath>
-#include <omp.h>
 #include <vtkColorTransferFunction.h>
 
 
@@ -542,4 +541,87 @@ void GRadarAlgorithm::interpolateImageOMP(const GRadialSurf* surface, const size
         //}
     }
     //delete[] no_smooth;
+}
+// 使用OMP库利用CPU多线程运算
+void GRadarAlgorithm::interpolateImageGrayOMP(const GRadialSurf* surface, const size_t width, const size_t height,
+    const double longitude, const double latitude, const double elev,
+    const QRectF& bound, vtkColorTransferFunction* mColorTF,
+    double* points, uchar* imageData)
+{
+    const double dx = bound.width() / (width - 1);
+    const double dy = bound.height() / (height - 1);
+
+    // 雷达站点数据
+    const double slon = toRadian(longitude);
+    const double slat = toRadian(latitude);
+    const double elev_add_RE_div_RN = (elev + RE) / RN;
+
+    // 锥面数据
+    const double el = toRadian(surface->el);
+    const double minR = surface->interval;
+    const double maxR = minR * surface->radials[0]->points.size();
+
+    // omp_set_num_threads(24);
+    // #pragma omp parallel for num_threads(8)
+    // omp多线程计算, 本机默认线程数为12
+#pragma omp parallel
+    {
+#pragma omp for
+        for (int row = 0; row < height; row++) {
+           
+            const double dpY = bound.top() + row * dy;
+            double rgb[3] = {};
+            double dpX = bound.left() - dx;
+            for (int col = 0; col < width; col++) {
+                
+                dpX += dx;
+                //const size_t index = row * width + col;
+                // 墨卡托直接转经纬度弧度
+                const double dlon = dpX / EHC * PI - slon;
+                const double lat = atan(exp(dpY * PI / EHC)) * 2.0 - PI / 2.0;
+
+                const double cos_lat = cos(lat);
+                const double a = acos(sin(slat) * sin(lat) +
+                    cos(slat) * cos_lat * cos(dlon));
+                const double sin_a = sin(a);
+                // 传播路径弧长
+                const double r = fabs(RN * (a + el + asin(fma(elev_add_RE_div_RN, sin_a, -sin(a + el)))));
+                if (r >= minR && r <= maxR) {
+                    // 已知经纬度求方位角，az实际上为sin(az)
+                    double az = cos_lat * sin(dlon) / sin_a;
+                    if (az >= -1.0) {
+                        if (az <= 1.0) {
+                            az = asin(az);
+                        }
+                        else {
+                            az = PI / 2;
+                        }
+                    }
+                    else {
+                        az = -PI / 2;
+                    }
+                    // 修正方位角
+                    const double dlat = lat - slat;
+                    if (dlon >= 0) {
+                        if (dlat < 0) az = PI - az;
+                    }
+                    else {
+                        if (dlat >= 0) az += (2 * PI);
+                        else az = PI - az;
+                    }
+                    az = toAngle(az);
+                    double value = interplateElRadialData(surface, az, r, INVALID_VALUE);
+                    
+                    if (value < -5.0 || value > 70.0) continue;
+                    imageData[row * height + col] = (int)value+120.0;
+                  
+                }
+                else {
+                   
+                }
+            }
+        }
+     
+    }
+    
 }

@@ -47,7 +47,7 @@ public:
     * radarLon, radarLat, radarElev: 网格上相对于雷达经纬度(角度)和海拔
     * gx, gy: 网格上相对于雷达的x, y坐标
     */
-    static void GRadarAlgorithm::lonLatToGrid(
+    static void lonLatToGrid(
         const double lon, const double lat, const double gz,
         const double radarLon, const double radarLat, const double radarElev,
         double* gx, double* gy);
@@ -85,9 +85,9 @@ public:
     * elev: 雷达海拔高度
     * return 转换后的坐标范围
     */
-    static QRectF GRadarAlgorithm::calcMercatorBound(const GRadialSurf* surface,
-                                                    const double longitude, const double latitude,
-                                                    const double elev);
+    static QRectF calcMercatorBound(const GRadialSurf* surface,
+                                    const double longitude, const double latitude,
+                                    const double elev);
 
     /*
     * 在径向上进行平滑 平滑核大小为5
@@ -114,5 +114,20 @@ public:
                                     const double longitude, const double latitude, const double elev,
                                     const QRectF& bound, vtkColorTransferFunction* mColorTF,
                                     double* points, uchar* imageData);
+    /*
+    * 使用OMP库利用CPU多线程运算
+    *
+    * surface: 要转换的锥面
+    * width height: 生成图像宽高
+    * longitude latitude: 雷达经纬度 角度
+    * elev: 雷达海报高度
+    * bound: 锥面墨卡托投影后的边界（可通过surfToMercator函数获取边界）
+    *
+    * points: 输出指针, 需要调用者分配内存空间, 一维数组, 长度为 width*height, 用于保存插值后的点
+    */
+    static void interpolateImageGrayOMP(const GRadialSurf* surface, const size_t width, const size_t height,
+        const double longitude, const double latitude, const double elev,
+        const QRectF& bound, vtkColorTransferFunction* mColorTF,
+        double* points, uchar* imageData);
 };
 

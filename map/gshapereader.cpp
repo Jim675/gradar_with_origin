@@ -25,8 +25,7 @@ Shape* ShapeReader::read(const QString& path)
     }
 
     ifstream ifs;
-    wstring cpath = path.toStdWString();
-    ifs.open(cpath.c_str(), ios::binary | ios::out);
+    ifs.open(path.toStdString(), ios::binary | ios::out);
     int shpType = 1;
     //读取Shp文件头
     if (!ifs) {

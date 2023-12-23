@@ -22,7 +22,7 @@ constexpr double operator"" _rgb(unsigned long long x)
 GVisualWidget::GVisualWidget(QWidget* parent, Qt::WindowFlags flags) :QVTKOpenGLNativeWidget(parent, flags)
 {
     // mInteractor = vtkSmartPointer<QVTKInteractor>::New(); // 自己New出来再设置给其他对象可能会导致内存泄漏
-    mInteractor = GetInteractor();
+    mInteractor = interactor();
     mInteractor->Initialize();
 
     mInteractorStyle = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
@@ -30,7 +30,7 @@ GVisualWidget::GVisualWidget(QWidget* parent, Qt::WindowFlags flags) :QVTKOpenGL
     //mInteractorStyle->SetEnabled(true); // 默认不能交互 似乎没有起作用
 
     //mRenderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-    mRenderWindow = GetRenderWindow();
+    mRenderWindow = renderWindow();
     //mRenderWindow->Initialize();
     //mRenderWindow->SetInteractor(mInteractor);
 
@@ -106,7 +106,7 @@ GVisualWidget::GVisualWidget(QWidget* parent, Qt::WindowFlags flags) :QVTKOpenGL
     mCubeAxesActor->SetXTitle("East");
     mCubeAxesActor->SetYTitle("North");
     mCubeAxesActor->SetZTitle("Elev");
-
+    
     //mCubeAxes->SetDrawXInnerGridlines(false);
     //mCubeAxes->SetDrawYInnerGridlines(false);
     //mCubeAxes->SetDrawZInnerGridlines(false);
@@ -156,7 +156,7 @@ void GVisualWidget::setColorTransferFunction(vtkColorTransferFunction* colorTF)
 {
     mColorTF->DeepCopy(colorTF);
     mColorTF->SetAllowDuplicateScalars(false);
-
+    
     /*vtkSmartPointer<vtkColorTransferFunction> colorBarTF = vtkColorTransferFunction::New();
     int n = mColorTF->GetSize();
     vtkSmartPointer<vtkDoubleArray> labels = vtkSmartPointer<vtkDoubleArray>::New();
@@ -239,7 +239,7 @@ void GVisualWidget::renderScene()
     mRenderWindow->Render();
 }
 
-/*
+ /*
 void GVisualWidget::setColorTable(const GColorTable* colorTable)
 {
     const int count = colorTable->colorCount();
@@ -535,7 +535,7 @@ void GVisualWidget::initSlice()
         plane->GetPlaneProperty()->SetColor(planeColor);
         plane->GetSelectedPlaneProperty()->SetColor(1.0, 1.0, 0.0);
         plane->GetSelectedPlaneProperty()->SetLineWidth(5.0);
-        plane->SetInteractor(GetInteractor());
+        plane->SetInteractor(interactor());
         plane->SetEnabled(true);
         plane->SetInteraction(false);
         plane->SetEnabled(false);

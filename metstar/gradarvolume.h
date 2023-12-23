@@ -2,7 +2,7 @@
 
 #include "generic_basedata_cv.h"
 #include "radar_dt.h"
-
+#include <QVector>
 #include <vector>
 #include <string>
 
@@ -92,7 +92,7 @@ public:
     double minEl = 0; // 最小仰角
     double maxEl = 0; // 最大仰角
     int	maxPointCount = 0; // 最大采样点数
-    vector<GRadialSurf*> surfs; // 锥面列表
+    QVector<GRadialSurf*> surfs; // 锥面列表
 
     QRect bound; // Web墨卡托范围边界
     QString path; // 文件路径
@@ -107,6 +107,9 @@ public:
 
     // 抽取指定的数据
     void extractData(const basedataImage& bdi, int dataType, double invalidValue);
+
+    //按照预测volume修改最后一帧雷达数据
+    void modifyData(basedataImage& bdi, int dataType);
 
     // 统计数据体范围
     void calcBoundBox(double& minX, double& minY, double& minZ, double& maxX, double& maxY, double& maxZ) const;

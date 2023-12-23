@@ -15,6 +15,7 @@
 
 #include <vector>
 #include <list>
+#include <cstdio>
 
 using std::vector;
 using std::list;

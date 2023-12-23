@@ -8,6 +8,7 @@
 #include <qdebug.h>
 
 #include <gmapconstant.h>
+#include <cmath>
 
 // GQRadialLine
 GRadialLine::GRadialLine(GRadialLine&& line) noexcept :
@@ -179,6 +180,129 @@ void GRadarVolume::extractData(const basedataImage& bdi, int dataType, double in
     //}
 }
 
+void GRadarVolume::modifyData(basedataImage& bdi, int dataType) {
+
+    //qDebug() << "=========================开始修改==========================";
+
+    //判断double型数据相等时用到
+    const double epsilon = 1e-9;
+
+    for (int i = 0; i < SITE_CODE_LENGTH; i++) {
+        //获取站点编号
+        bdi.siteInfo.code[i] = siteCode.toLatin1().data()[i];
+        //获取站点名称
+        bdi.siteInfo.name[i] = siteName.toLatin1().data()[i];
+    }
+
+    //获取扫描开始时间戳
+    bdi.taskConf.startTime = QDateTime::fromString(startTime, QString("yyyy-MM-dd hh:mm:ss")).toTime_t();
+    //修改时间戳
+    //bdi.taskConf.startTime += 10000;
+    //获取站点经度
+    bdi.siteInfo.lon = longitude;
+    //获取站点维度
+    bdi.siteInfo.lat = latitude;
+    //获取站点海拔高度
+    bdi.siteInfo.height = elev;
+
+    GRadialSurf* pSurf = nullptr;
+    int icut = 0;
+    int isurf = 0;
+    int idata = 0;
+
+    //遍历bdi中每一份雷达数据
+    for (auto it = bdi.radials.begin(); it != bdi.radials.end(); ++it) {
+
+        //qDebug() << "=================================================";
+        //qDebug() << "====================开始写入=====================";
+        //qDebug() << "cuts_el_" << i << "=" << bdi.cuts.at(i).el;
+        //qDebug() << "surfs_el_" << i << "=" << surfs.at(i)->el;
+        //qDebug() << "cuts_az_" << i << "=" << bdi.cuts.at(i).az;
+        //qDebug() << "surfs_az_" << i << "=" << surfs.at(i)->radials.at(0)->az;
+        //qDebug() << "cuts_dopReso_" << i << "=" << bdi.cuts.at(i).dopReso;
+        //qDebug() << "surfs_interval_" << i << "=" << surfs.at(i)->interval;
+
+        if (it->state == CUT_START || it->state == VOL_START) {  // 仰角开始或体扫开始
+            pSurf = nullptr;
+            //遍历radials中每一份径向数据
+            for (auto jt = it->mom.begin(); jt != it->mom.end(); ++jt) {
+                if (jt->udt.type == dataType) {
+                    //预测数据体volume中的锥面
+                    pSurf = surfs.at(isurf++);
+                    idata = 0;
+                    if (pSurf->el > 90)
+                        it->el = pSurf->el + 360;
+                    else
+                        it->el = pSurf->el;
+                    //根据锥面数据更改bdi中的数据
+                    bdi.cuts[icut].dopReso = pSurf->interval;  //多普勒分辨率
+                    bdi.cuts[icut].az = pSurf->radials.at(idata)->az;  //方位角
+
+                    //径向数据上的点列表
+                    ubytes& points = (*jt).points;
+                    //将每一个点的数据修改为预测volume中的点数据
+                    for (size_t i = 0; i < points.size(); i++) {
+                        //当预测volume中的点值为-1000时, 表示在提取数据是points[i] < 5, 所以直接置零不影响下次读数据
+                        if (std::abs(pSurf->radials.at(idata)->points.at(i).value + 1000) < epsilon) {
+                            points[i] = 0;
+                        }
+                        else {
+                            if (pSurf->radials.at(idata)->points.at(i).value < 0) {
+                                //若预测volume中的点数据值为负, 且不为-1000, 则将取正, 这样可以保证修改前后读出来的值绝对值误差小
+                                //points[i] = (unsigned short)((*jt).udt.offset - pSurf->radials.at(idata)->points.at(i).value * (*jt).udt.scale);
+                                points[i] = 0;
+                            }
+                            else
+                                //其他情况则直接公式反推, 但是从double重新存回unsigned short会造成数据损失
+                                points[i] = (unsigned short)((*jt).udt.offset + pSurf->radials.at(idata)->points.at(i).value * (*jt).udt.scale);
+                        }
+                    }
+                    //雷达数据结构体中的方位角
+                    it->az = pSurf->radials.at(idata)->az;
+                    //仰角修改
+                    if (pSurf->radials.at(idata)->el > 90)
+                        bdi.cuts[icut].el = pSurf->radials.at(idata)->el + 360;
+                    else
+                        bdi.cuts[icut].el = pSurf->radials.at(idata)->el;
+                    idata++;
+                }
+            }
+        }
+        else if (it->state == CUT_END || it->state == VOL_END) {  // 仰角结束或者体扫结束
+            icut++;
+        }
+        else if (it->state == CUT_MID) {  // 仰角中间数据
+            if (pSurf) {
+                //方位角
+                it->az = pSurf->radials.at(idata)->az;
+                //仰角
+                it->el = pSurf->radials.at(idata)->el;
+                for (auto jt = it->mom.begin(); jt != it->mom.end(); ++jt) {
+                    if (jt->udt.type == dataType) {
+                        ubytes& points = (*jt).points;
+                        for (size_t i = 0; i < points.size(); i++) {
+                            if (std::abs(pSurf->radials.at(idata)->points.at(i).value + 1000) < epsilon) {
+                                points[i] = 0;
+                            }
+                            else {
+                                if (pSurf->radials.at(idata)->points.at(i).value < 0) {
+                                    //points[i] = (unsigned short)((*jt).udt.offset - pSurf->radials.at(idata)->points.at(i).value * (*jt).udt.scale);
+                                    points[i] = 0;
+                                }
+                                else
+                                    points[i] = (unsigned short)((*jt).udt.offset + pSurf->radials.at(idata)->points.at(i).value * (*jt).udt.scale);
+                            }
+
+                            //qDebug() << "after_point_" << i << points[i];
+                            //qDebug() << "========================================================";
+                        }
+                        idata++;
+                    }
+                }
+            }
+        }
+    }
+}
 
 // 计算雷达数据体边界范围
 void GRadarVolume::calcBoundBox(double& minX, double& maxX,
@@ -411,7 +535,9 @@ int GRadarVolume::findElRange(double el) const
 // 在数据量较少的情况下, 顺序查找速度可能更快
 int GRadarVolume::findElRange1(double el) const
 {
+    
     const int n = surfs.size() - 1;
+   
     if (el < surfs[0]->el || el >= surfs[n]->el) {
         return -1;
     }
@@ -420,7 +546,21 @@ int GRadarVolume::findElRange1(double el) const
             return i - 1;
         }
     }
-    return n - 1;
+     return n - 1;
+    
+    /*
+    double Els[9] = { 0.65,1.34,2.26,3.22,4.15,5.84,9.84,13.84,19.33 };
+    if (el < Els[0]|| el >= Els[8]) {
+        return -1;
+    }
+    for (int i = 1; i <= 8 - 1; i++) {
+        if (el < Els[i]) {
+            return i - 1;
+        }
+    }
+    return 8 - 1;
+    */
+   
 }
 
 double GRadarVolume::interplateElRadialData(int isurf, double az, double r, double invalidValue) const
