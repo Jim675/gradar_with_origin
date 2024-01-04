@@ -114,6 +114,7 @@ public:
 
 
 	//æ≠Œ≥∂»‘§≤‚
+	
 	//º”‘ÿÕº∆¨
 	int load_PredictImage(GRader2DLayer* layer, QString rootpath);
 	int load_PredictImage(GRader2DLayer* layer, QVector<QImage> image);
