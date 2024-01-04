@@ -1013,38 +1013,52 @@ void GRader2DLayer::setPreImage(QVector<QImage>&image)
     mPreImages = image;
     //qDebug() << "mPreImages.size()" << mPreImages.size() << endl;
 }
-//插值画
+//插值法获取
 int GRader2DLayer::savePreInfoIn(QVector<QVector<QImage>>& Images)
 {
+    //  mRaderDataList是雷达数据列表,volumesize是有几个雷达,一个雷达又分成很多层,每一层有一个仰角
     int volumesize = mRaderDataList->size();
+    //  imgwidth是图像大小
     int imagewidth = imgwidth;
+
     int imageheight = imgwidth;
 
 
-
+    //  遍历每一个雷达
     for (int k = 0; k < volumesize; k++)
     {
+        // volume是雷达数据体,包含经纬度,仰角,雷达数据等,遍历所有雷达
         const GRadarVolume* volume = mRaderDataList->at(k);
+        // surfsize是每一个雷达的锥面个数
         int surfsize = volume->surfs.size();
         vector<double> v;
 
         for (int i = 0; i < surfsize; i++)
         {
+            // el是平均仰角角度
             v.push_back(volume->surfs[i]->el);
         }
         if (cheekisSave == -1)
         {
+            //  站点经度
             mSLon = volume->longitude;
+            //  站点纬度
             mSLat = volume->latitude;
+            //  站点海拔高度
             setElev(volume->elev);
+            //  设置数据仰角个数和仰角值
             setELs(surfsize, v);
             cheekisSave = 1;
         }
+        // image是其中一个雷达的数据
         QVector<QImage> image;
+        // 遍历每一个锥面
         for (int i = 0; i < surfsize; i++)
         {
             auto* surface = volume->surfs[i];
+            // 锥面Web墨卡托范围边界
             QRectF bound = surface->bound;
+            // 没有现成的就通过参数计算
             if (bound.isNull()) {
                 bound = GRadarAlgorithm::calcMercatorBound(surface, volume->longitude, volume->latitude, volume->elev);
             }
@@ -1615,15 +1629,20 @@ void GRader2DLayer::CompleteVolume()
 }
 int GRader2DLayer::load_PredictImageIn(QVector<QImage> Image, int surfindex)
 {
+    // mRaderDataList是用户加载的全部雷达数据
     const GRadarVolume* volume = mRaderDataList->at(0);;
     int sursize = volume->surfs.size();
-    //雷达站点基本信息
+    //  雷达站点基本信息,经度 纬度 海拔
     double sLon = toRadian(volume->longitude);
     double sLat = toRadian(volume->latitude);
     double elev = volume->elev;
 
+    //  雷达站点海拔高度
     double SElev = mElev;
+    //  雷达站点仰角个数,就是锥面个数
     int Sufnums = mELs.size();
+
+    //  雷达站点仰角个数
     mSurnums = mELs.size();
 
     for (int k = 0; k < Sufnums; k++)
@@ -1634,11 +1653,13 @@ int GRader2DLayer::load_PredictImageIn(QVector<QImage> Image, int surfindex)
         uchar* timagevalue = image.bits();
 
         auto* surface = volume->surfs[k];
+        // bound是Web墨卡托范围边界
         QRectF bound = surface->bound;
 
         if (bound.isNull()) {
             bound = GRadarAlgorithm::calcMercatorBound(surface, volume->longitude, volume->latitude, volume->elev);
         }
+        //  dx,dy是边界的x/y值的大小
         double dx = bound.width() / (mImageWideth - 1);
         double dy = bound.height() / (mImageHeight - 1);
 

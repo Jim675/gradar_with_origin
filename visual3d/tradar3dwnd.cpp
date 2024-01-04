@@ -43,7 +43,7 @@ TRadar3DWnd::TRadar3DWnd(QWidget *parent)
 	renderGroup->addAction(ui.actShowSlice);
 	ui.actShowVolume->setChecked(true);
 
-	// ÉèÖÃÖ÷´°¿Ú´óĞ¡
+	// è®¾ç½®ä¸»çª—å£å¤§å°
 
 	QRect desk = QApplication::desktop()->availableGeometry();
 	int width = desk.width() * 0.8;
@@ -94,7 +94,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	auto t0 = std::chrono::steady_clock::now();
 	double mx = 0, my = 0;
 	GMapCoordConvert::lonLatToMercator(data->longitude, data->latitude, &mx, &my);
-	// ¼ÆËãÊı¾İÌå±ß½ç·¶Î§
+	// è®¡ç®—æ•°æ®ä½“è¾¹ç•ŒèŒƒå›´
 	double x0 = 0, x1 = 0, y0 = 0, y1 = 0, z0 = 0, z1 = 0;
 	data->calcBoundBox(x0, x1, y0, y1, z0, z1);
 
@@ -103,13 +103,13 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	y0 = mGridRect.top() - my;
 	y1 = mGridRect.bottom() - my;
 
-	// Ñ¡Ôñ¿òµÄwebÄ«¿¨ÍĞ·¶Î§×ª¾­Î³¶È×ø±ê
+	// é€‰æ‹©æ¡†çš„webå¢¨å¡æ‰˜èŒƒå›´è½¬ç»çº¬åº¦åæ ‡
 	double lon0 = 0, lat0 = 0;
 	GMapCoordConvert::mercatorToLonLat(mGridRect.left(), mGridRect.top(), &lon0, &lat0);
 	double lon1 = 0, lat1 = 0;
 	GMapCoordConvert::mercatorToLonLat(mGridRect.right(), mGridRect.bottom(), &lon1, &lat1);
 
-	// Ñ¡Ôñ¿òµÄ¾­Î³¶È×ø±ê·¶Î§×ªÀ×´ïÊı¾İÌåÍø¸ñ»¯XYÆÁÄ»ÉÏµÄ·¶Î§£¨Ïà¶ÔÓÚÀ×´ï»ùÕ¾µÄ×ø±ê£©
+	// é€‰æ‹©æ¡†çš„ç»çº¬åº¦åæ ‡èŒƒå›´è½¬é›·è¾¾æ•°æ®ä½“ç½‘æ ¼åŒ–XYå±å¹•ä¸Šçš„èŒƒå›´ï¼ˆç›¸å¯¹äºé›·è¾¾åŸºç«™çš„åæ ‡ï¼‰
 	double gx0 = 0, gy0 = 0;
 	double gx1 = 0, gy1 = 0;
 	GRadarAlgorithm::lonLatToGrid(lon0, lat0, 0,
@@ -118,18 +118,18 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	GRadarAlgorithm::lonLatToGrid(lon1, lat1, 0,
 		data->longitude, data->latitude, data->elev,
 		&gx1, &gy1);
-	// ÉèÖÃÍø¸ñ»¯·¶Î§
+	// è®¾ç½®ç½‘æ ¼åŒ–èŒƒå›´
 	//rect->setRect(x0, y0, x1 - x0, y1 - y0);
 	//rect->setRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
-	qDebug("webÄ«¿¨ÍĞÍø¸ñ»¯·¶Î§:");
+	qDebug("webå¢¨å¡æ‰˜ç½‘æ ¼åŒ–èŒƒå›´:");
 	qDebug() << "x:[" << x0 << ',' << x1 << ']' << endl;
 	qDebug() << "y:[" << y0 << ',' << y1 << ']' << endl;
 	qDebug() << "z:[" << z0 << ',' << z1 << ']' << endl;
 
-	// ÕÒµ½ÀëÍø¸ñÖĞĞÄ×îÔ¶µÄµã
+	// æ‰¾åˆ°ç¦»ç½‘æ ¼ä¸­å¿ƒæœ€è¿œçš„ç‚¹
 	double maxX = std::max(abs(gx0), abs(gx1));
 	double maxY = std::max(abs(gy0), abs(gy1));
-	// ×î¸ßÑö½Ç
+	// æœ€é«˜ä»°è§’
 	double maxEl = 0;
 	if (data->surfs.size() > 0) {
 		maxEl = ANGLE_TO_RADIAN * (data->surfs[data->surfs.size() - 1]->el);
@@ -137,7 +137,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	double z2 = std::min(sqrt(maxX * maxX + maxY * maxY) * tan(maxEl), z1);
 	double gz0 = z0;
 	double gz1 = z2;
-	qDebug("ÕæÕıµÄÍø¸ñ»¯·¶Î§:");
+	qDebug("çœŸæ­£çš„ç½‘æ ¼åŒ–èŒƒå›´:");
 	qDebug() << "x:[" << gx0 << ',' << gx1 << ']' << endl;
 	qDebug() << "y:[" << gy0 << ',' << gy1 << ']' << endl;
 	qDebug() << "z:[" << gz0 << ',' << gz1 << ']' << endl;
@@ -160,18 +160,18 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	double range[2] = {};
 	mVisualWidget->getColorTransferFunction()->GetRange(range);
 
-	// »ñÈ¡×î¸ßÓĞĞ§Z×ø±ê
+	// è·å–æœ€é«˜æœ‰æ•ˆZåæ ‡
 	gz1 = data->detectMaxValidZ(gx0, gx1,
 		gy0, gy1,
 		gz0, gz1,
-		nx / 2, ny / 2, nz / 4, // ´ÖÂÔÒ»µã½µµÍ¼ÆËãÁ¿
+		nx / 2, ny / 2, nz / 4, // ç²—ç•¥ä¸€ç‚¹é™ä½è®¡ç®—é‡
 		range[0], range[1]);
 
 	vtkNew<vtkFloatArray> dataArray;
 	dataArray->SetNumberOfComponents(1);
 	dataArray->SetNumberOfTuples(static_cast<vtkIdType>(nx) * ny * nz);
 
-	// Íø¸ñ»¯
+	// ç½‘æ ¼åŒ–
 	data->gridding(gx0, gx1,
 		gy0, gy1,
 		gz0, gz1,
@@ -198,13 +198,13 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	//rect->setRect(-0.5 * spaceX * (nx - 1), -0.5 * spaceY * (ny - 1), x1 - x0, y1 - y0);
 	//imageData->SetOrigin(-0.5 * spaceX * (nx - 1), -0.5 * spaceY * (ny - 1), (data->elev + gz0));
 	//auto t2 = std::chrono::steady_clock::now();
-	//printDTime(t1, t2, "³éÈ¡Êı¾İºÄÊ±");
+	//printDTime(t1, t2, "æŠ½å–æ•°æ®è€—æ—¶");
 	return imageData;
 }
 int TRadar3DWnd::load_PredictImage(GRader2DLayer* layer, QVector<QImage> Image)
 {
 	QPoint p = layer->getLonpLatp();
-	qDebug() << "µÃµ½µÄp£º" << p << endl;
+	qDebug() << "å¾—åˆ°çš„pï¼š" << p << endl;
 	QPointF tpf = layer->cvdptolp(QPoint(p.x(), p.y()));
 	double lon1 = 0, lat1 = 0;
 	GMapCoordConvert::mercatorToLonLat(tpf.x(), tpf.y(), &lon1, &lat1);
@@ -231,7 +231,7 @@ int TRadar3DWnd::load_PredictImage(GRader2DLayer* layer, QVector<QImage> Image)
 		QImage image = Image[i];
 		ImageWideth = image.width();
 		ImageHeight = image.height();
-		qDebug() << "Í¼" << i + 1 << endl;
+		qDebug() << "å›¾" << i + 1 << endl;
 		for (int i = 0; i < ImageWideth; i++)
 		{
 			for (int j = 0; j < ImageHeight; j++)
@@ -244,7 +244,7 @@ int TRadar3DWnd::load_PredictImage(GRader2DLayer* layer, QVector<QImage> Image)
 			}
 		}
 	}
-	//½«×ø±ê×ª»»Îª¾­Î³¶È
+	//å°†åæ ‡è½¬æ¢ä¸ºç»çº¬åº¦
 	for (int i = 0; i < vpoint.size(); i++)
 	{
 		QPointF pf = layer->cvdptolp(vpoint[i]);
@@ -263,7 +263,7 @@ int TRadar3DWnd::load_PredictImage(GRader2DLayer* layer, QVector<QImage> Image)
 int TRadar3DWnd::load_PredictImage(GRader2DLayer* layer,QString rootpath)
 {
 	QPoint p = layer->getLonpLatp();
-	//qDebug() << "µÃµ½µÄp£º" << p << endl;
+	//qDebug() << "å¾—åˆ°çš„pï¼š" << p << endl;
 	QPointF tpf = layer->cvdptolp(QPoint(p.x(), p.y()));
 	double lon1 = 0, lat1 = 0;
 	GMapCoordConvert::mercatorToLonLat(tpf.x(), tpf.y(), &lon1, &lat1);
@@ -296,7 +296,7 @@ int TRadar3DWnd::load_PredictImage(GRader2DLayer* layer,QString rootpath)
 			return -1;
 		ImageWideth = image.width();
 		ImageHeight = image.height();
-		qDebug() << "Í¼" << i + 1 << endl;
+		qDebug() << "å›¾" << i + 1 << endl;
 		for (int i = 0; i < ImageWideth; i++)
 		{
 			for (int j = 0; j < ImageHeight; j++)
@@ -308,7 +308,7 @@ int TRadar3DWnd::load_PredictImage(GRader2DLayer* layer,QString rootpath)
 			}
 		}
 	}
-	//½«×ø±ê×ª»»Îª¾­Î³¶È
+	//å°†åæ ‡è½¬æ¢ä¸ºç»çº¬åº¦
 	for (int i = 0; i < vpoint.size(); i++)
 	{
 		QPointF pf = layer->cvdptolp(vpoint[i]);
@@ -325,7 +325,7 @@ int TRadar3DWnd::load_PredictImage(GRader2DLayer* layer,QString rootpath)
 	return 1;
 }
 
-//½«Êı¾İ×éºÏ³ÉÀ×´ïÊı¾İÌå
+//å°†æ•°æ®ç»„åˆæˆé›·è¾¾æ•°æ®ä½“
 void  TRadar3DWnd::CompleteVolume()
 {
 	qDebug() << "a" << endl;
@@ -415,7 +415,7 @@ void TRadar3DWnd::renderPrerdict()
 
 	if (!mIsRendered)
 	{
-		// Èç¹ûÊÇµÚÒ»´ÎÏÔÊ¾Êı¾İÌå
+		// å¦‚æœæ˜¯ç¬¬ä¸€æ¬¡æ˜¾ç¤ºæ•°æ®ä½“
 
 		auto t1 = std::chrono::steady_clock::now();
 		auto dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
@@ -426,7 +426,7 @@ void TRadar3DWnd::renderPrerdict()
 
 		//pointData->SetCopyTCoords(true);
 
-		// ¼ÆËãÎÆÀíÓ³Éä×ø±ê
+		// è®¡ç®—çº¹ç†æ˜ å°„åæ ‡
 		vtkNew<vtkFloatArray> tCoords;
 		//tCoords->SetName("Texture Coordinates");
 		tCoords->SetNumberOfComponents(2);
@@ -446,14 +446,14 @@ void TRadar3DWnd::renderPrerdict()
 			tcoords[1] = (point[1] - y0) / h;
 			tCoords->SetTuple(i, tcoords);
 		}
-		// ÉèÖÃÎÆÀíÓ³Éä×ø±ê
+		// è®¾ç½®çº¹ç†æ˜ å°„åæ ‡
 		terrainPolyData->GetPointData()->SetTCoords(tCoords);
 
 		auto t2 = std::chrono::steady_clock::now();
 		dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
 		qDebug() << "toVtkPolyData + Texture map: " << dtime.count() << " milliseconds" << endl;
 
-		// ´´½¨ÎÆÀí
+		// åˆ›å»ºçº¹ç†
 		vtkSmartPointer<vtkImageData> terrainImage = VTKUtil::toVtkImageData(&mMapImage);
 		mVisualWidget->setTerrainData(terrainPolyData, terrainImage);
 
@@ -466,7 +466,7 @@ void TRadar3DWnd::renderPrerdict()
 
 	mVisualWidget->renderScene();
 }
-//Íø¸ñ»¯Ô¤²âºóµÄÊı¾İ
+//ç½‘æ ¼åŒ–é¢„æµ‹åçš„æ•°æ®
 vtkSmartPointer<vtkImageData> TRadar3DWnd::gridingPreData()
 {
 	const GRenderConfig& config = GConfig::mRenderConfig;
@@ -478,7 +478,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::gridingPreData()
 	double gx2 = 460000.0;
 	double gy2 = 460000.0;
 
-	//×î¸ß¡¢×îµÍÑö½Ç
+	//æœ€é«˜ã€æœ€ä½ä»°è§’
 	double maxel = VEls[8];
 	qDebug() << "maxel:" << maxel << endl;
 	double minel = VEls[0];
@@ -511,7 +511,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::gridingPreData()
 	dataArray->SetNumberOfComponents(1);
 	dataArray->SetNumberOfTuples(static_cast<vtkIdType>(nx) * ny * nz);
 
-	// Íø¸ñ»¯
+	// ç½‘æ ¼åŒ–
 	
 	TRadar3DWnd::calGridValuepre(gx1, gx2,
 		gy1, gy2,
@@ -528,7 +528,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::gridingPreData()
 	qDebug() << "spaceX:" << spaceX << endl
 		<< "spaceY:" << spaceY << endl
 		<< "spaceZ:" << spaceZ << endl;
-	//ÉèÖÃÔ­µã
+	//è®¾ç½®åŸç‚¹
 	double ox = -0.5 * spaceX * nx;
 	double oy = -0.5 * spaceY * ny;
 	double oz = SElev + gz1;
@@ -541,7 +541,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::gridingPreData()
 
 	return imageData;
 }
-//¼ÆËãÃ¿µãµÄÖµ
+//è®¡ç®—æ¯ç‚¹çš„å€¼
 void TRadar3DWnd::calGridValuepre(double minx, double maxx, double miny, double maxy, double minz, double maxz, int nx, int ny, int nz, float* output)
 {
 	const double dx = (maxx - minx) / nx;;
@@ -549,11 +549,11 @@ void TRadar3DWnd::calGridValuepre(double minx, double maxx, double miny, double 
 	const double dz = (maxz - minz) / nz;
 	const int nxy = nx * ny;
 
-	qDebug() << "¿ªÊ¼¼ÆËãÖµ" << endl;
+	qDebug() << "å¼€å§‹è®¡ç®—å€¼" << endl;
 	auto t0 = std::chrono::steady_clock::now();
 	int t = 0; 
 	double RE = 6378137;
-	// À×´ï´«²¥Ô²»¡Â·¾¶µÄ°ë¾¶ÎªµØÇò°ë¾¶4±¶
+	// é›·è¾¾ä¼ æ’­åœ†å¼§è·¯å¾„çš„åŠå¾„ä¸ºåœ°çƒåŠå¾„4å€
 	double RN = RE * 4;
 #pragma omp parallel for
 	for (int iz = 0; iz < nz; iz++) {
@@ -570,7 +570,7 @@ void TRadar3DWnd::calGridValuepre(double minx, double maxx, double miny, double 
 				const double el0 = atan2(gz, gl);
 				const double r_ = gl / cos(el0);
 				const double el1 = asin(0.5 * r_ / RN);
-				// Ñö½Ç
+				// ä»°è§’
 				const double el = toAngle(el0 + el1);
 				const double v = Nearintep(el, gx, gy, gz, dx, dy, dz);
 				//double v = IDWinterp(el, gx, gy, gz,dx,dy,dz);
@@ -580,16 +580,16 @@ void TRadar3DWnd::calGridValuepre(double minx, double maxx, double miny, double 
 		}
 	}
 }
-//ÕÒ×î½üµÄÑö½Ç²ã
+//æ‰¾æœ€è¿‘çš„ä»°è§’å±‚
 int TRadar3DWnd::findel(double el)
 {
 	const int size = VEls.size() - 1;
-	//Ê×Î²µÄÇé¿ö
+	//é¦–å°¾çš„æƒ…å†µ
 	if (el < VEls[0] || el >= VEls[size])
 	{
 		return -1;
 	}
-	//ÖĞ¼äÇé¿ö
+	//ä¸­é—´æƒ…å†µ
 	for (int i = 1; i <= size - 1; i++)
 	{
 		if (el < VEls[i])
@@ -627,9 +627,9 @@ double TRadar3DWnd::IDWinterp(double e, double gx, double gy, double gz, double 
 
 	//int search_R = 10000;
 	int search_R = 2*dx;
-	//vector<double> r;//¾àÀë
-	vector<double> v;//Öµ
-	vector<double> w;//È¨ÖØ
+	//vector<double> r;//è·ç¦»
+	vector<double> v;//å€¼
+	vector<double> w;//æƒé‡
 	int size = GXS.size();
 #pragma omp parallel for
 	for (int i = index1; i < index2; i++)
@@ -678,7 +678,7 @@ double TRadar3DWnd::IDWinterp(double e, double gx, double gy, double gz, double 
 
 	return vwsum / wsum;
 }
-//×î½üÁÚ¾Ó·¨ÕÒ
+//æœ€è¿‘é‚»å±…æ³•æ‰¾
 double TRadar3DWnd::Nearintep(double e, double gx, double gy, double gz, double dx, double dy, double dz)
 {
 	
@@ -725,11 +725,11 @@ double TRadar3DWnd::Nearintep(double e, double gx, double gy, double gz, double 
 	}
 	return -1000;
 }
-//¶ÁÈ¡Êı¾İ
+//è¯»å–æ•°æ®
 void TRadar3DWnd::readData()
 {
 	
-	qDebug() << "¿ªÊ¼¶ÁÈ¡Ô¤²âÀ×´ïÊı¾İÎÄ¼ş" << endl;
+	qDebug() << "å¼€å§‹è¯»å–é¢„æµ‹é›·è¾¾æ•°æ®æ–‡ä»¶" << endl;
 	string rootPath = "G:/Z9592.20160914.133505.AR2/";
 	//string rootPath = "F:/predModel/res(1)/";
 
@@ -744,11 +744,11 @@ void TRadar3DWnd::readData()
 		}
 		data.close();
 	}
-	qDebug() << "½áÊø¶ÁÈ¡Ô¤²âÀ×´ïÊı¾İÎÄ¼ş" << endl;
+	qDebug() << "ç»“æŸè¯»å–é¢„æµ‹é›·è¾¾æ•°æ®æ–‡ä»¶" << endl;
 	qDebug() << "V.size():" << mVPreData.size()<<endl;
 	
 	/*
-	QString DirPath = QFileDialog::getExistingDirectory(this, "´ò¿ªÎÄ¼ş");
+	QString DirPath = QFileDialog::getExistingDirectory(this, "æ‰“å¼€æ–‡ä»¶");
 	if (DirPath.isEmpty()) return;
 
 	QDir dir(DirPath);
@@ -773,14 +773,14 @@ void TRadar3DWnd::readData()
 
 		}
 	}
-	qDebug() << "½áÊø¶ÁÈ¡Ô¤²âÀ×´ïÊı¾İÎÄ¼ş" << endl;
+	qDebug() << "ç»“æŸè¯»å–é¢„æµ‹é›·è¾¾æ•°æ®æ–‡ä»¶" << endl;
 	qDebug() << "V.size():" << mVPreData.size() << endl;
 	*/
 }
-//½«Íø¸ñ»¯ºóµÄÀ×´ïÊı¾İÃ¿²ãĞ´ÈëtxtÎÄ¼şÖĞ
+//å°†ç½‘æ ¼åŒ–åçš„é›·è¾¾æ•°æ®æ¯å±‚å†™å…¥txtæ–‡ä»¶ä¸­
 void TRadar3DWnd::wirteData(int nx, int ny, int nz, float* pointer)
 {
-	QString DirPath = QFileDialog::getExistingDirectory(this, "Ñ¡Ôñ±£´æÎ»ÖÃ");
+	QString DirPath = QFileDialog::getExistingDirectory(this, "é€‰æ‹©ä¿å­˜ä½ç½®");
 	if (DirPath.isEmpty()) return;
 
 	
@@ -824,11 +824,11 @@ void TRadar3DWnd::wirteData(int nx, int ny, int nz, float* pointer)
 	}
 
 	/*
-	//QString filename = QFileDialog::getSaveFileName(this, "Ñ¡Ôñ±£´æÎ»ÖÃ", "", "Êı¾İÌå(*.txt)");
+	//QString filename = QFileDialog::getSaveFileName(this, "é€‰æ‹©ä¿å­˜ä½ç½®", "", "æ•°æ®ä½“(*.txt)");
 
-	//QString DirPath = QFileDialog::getExistingDirectory(this, "Ñ¡Ôñ±£´æÎ»ÖÃ", "");
+	//QString DirPath = QFileDialog::getExistingDirectory(this, "é€‰æ‹©ä¿å­˜ä½ç½®", "");
 	//if (DirPath.isEmpty()) return;
-	QFileDialog dialog(this, "Ñ¡Ôñ±£´æÎ»ÖÃ");
+	QFileDialog dialog(this, "é€‰æ‹©ä¿å­˜ä½ç½®");
 	dialog.setFileMode(QFileDialog::Directory);
 	dialog.setOption(QFileDialog::ShowDirsOnly);
 	
@@ -933,10 +933,10 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::completeImageData()
 	//rect->setRect(-0.5 * spaceX * (nx - 1), -0.5 * spaceY * (ny - 1), x1 - x0, y1 - y0);
 	//imageData->SetOrigin(-0.5 * spaceX * (nx - 1), -0.5 * spaceY * (ny - 1), (data->elev + gz0));
 	//auto t2 = std::chrono::steady_clock::now();
-	//printDTime(t1, t2, "³éÈ¡Êı¾İºÄÊ±");
+	//printDTime(t1, t2, "æŠ½å–æ•°æ®è€—æ—¶");
 	return imageData;
 }
-//½«Õû¸öÀ×´ïÊı¾İÍø¸ñ»¯
+//å°†æ•´ä¸ªé›·è¾¾æ•°æ®ç½‘æ ¼åŒ–
 vtkSmartPointer<vtkImageData> TRadar3DWnd::grridingdataAll(QRectF* rect)
 {
 	const GRenderConfig& config = GConfig::mRenderConfig;
@@ -948,11 +948,11 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::grridingdataAll(QRectF* rect)
 	double mx = 0, my = 0;
 	GMapCoordConvert::lonLatToMercator(data->longitude, data->latitude, &mx, &my);
 
-	// ¼ÆËãÊı¾İÌå±ß½ç·¶Î§
+	// è®¡ç®—æ•°æ®ä½“è¾¹ç•ŒèŒƒå›´
 	auto* surface = data->surfs[0];
 	if (surface->bound.isNull()) {
 		surface->bound = GRadarAlgorithm::calcMercatorBound(surface, data->longitude, data->latitude, data->elev);
-		qDebug("»æÖÆÊ±Ã»ÓĞWebÄ«¿¨ÍĞ±ß½çÎª¿Õ");
+		qDebug("ç»˜åˆ¶æ—¶æ²¡æœ‰Webå¢¨å¡æ‰˜è¾¹ç•Œä¸ºç©º");
 	}
 	QRectF Bounds = surface->bound;
 	double left = Bounds.x();
@@ -970,13 +970,13 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::grridingdataAll(QRectF* rect)
 	y0 = top - my;
 	y1 = bottom - my;
 
-	// Ñ¡Ôñ¿òµÄwebÄ«¿¨ÍĞ·¶Î§×ª¾­Î³¶È×ø±ê
+	// é€‰æ‹©æ¡†çš„webå¢¨å¡æ‰˜èŒƒå›´è½¬ç»çº¬åº¦åæ ‡
 	double lon0 = 0, lat0 = 0;
 	GMapCoordConvert::mercatorToLonLat(left, top, &lon0, &lat0);
 	double lon1 = 0, lat1 = 0;
 	GMapCoordConvert::mercatorToLonLat(right, bottom, &lon1, &lat1);
 
-	// Ñ¡Ôñ¿òµÄ¾­Î³¶È×ø±ê·¶Î§×ªÀ×´ïÊı¾İÌåÍø¸ñ»¯XYÆÁÄ»ÉÏµÄ·¶Î§£¨Ïà¶ÔÓÚÀ×´ï»ùÕ¾µÄ×ø±ê£©
+	// é€‰æ‹©æ¡†çš„ç»çº¬åº¦åæ ‡èŒƒå›´è½¬é›·è¾¾æ•°æ®ä½“ç½‘æ ¼åŒ–XYå±å¹•ä¸Šçš„èŒƒå›´ï¼ˆç›¸å¯¹äºé›·è¾¾åŸºç«™çš„åæ ‡ï¼‰
 	double gx0 = 0, gy0 = 0;
 	double gx1 = 0, gy1 = 0;
 	GRadarAlgorithm::lonLatToGrid(lon0, lat0, 0,
@@ -985,18 +985,18 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::grridingdataAll(QRectF* rect)
 	GRadarAlgorithm::lonLatToGrid(lon1, lat1, 0,
 		data->longitude, data->latitude, data->elev,
 		&gx1, &gy1);
-	// ÉèÖÃÍø¸ñ»¯·¶Î§
+	// è®¾ç½®ç½‘æ ¼åŒ–èŒƒå›´
 	//rect->setRect(x0, y0, x1 - x0, y1 - y0);
 	//rect->setRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
-	qDebug("webÄ«¿¨ÍĞÍø¸ñ»¯·¶Î§:");
+	qDebug("webå¢¨å¡æ‰˜ç½‘æ ¼åŒ–èŒƒå›´:");
 	qDebug() << "x:[" << x0 << ',' << x1 << ']' << endl;
 	qDebug() << "y:[" << y0 << ',' << y1 << ']' << endl;
 	qDebug() << "z:[" << z0 << ',' << z1 << ']' << endl;
 
-	// ÕÒµ½ÀëÍø¸ñÖĞĞÄ×îÔ¶µÄµã
+	// æ‰¾åˆ°ç¦»ç½‘æ ¼ä¸­å¿ƒæœ€è¿œçš„ç‚¹
 	double maxX = std::max(abs(gx0), abs(gx1));
 	double maxY = std::max(abs(gy0), abs(gy1));
-	// ×î¸ßÑö½Ç
+	// æœ€é«˜ä»°è§’
 	double maxEl = 0;
 	if (data->surfs.size() > 0) {
 		maxEl = ANGLE_TO_RADIAN * (data->surfs[data->surfs.size() - 1]->el);
@@ -1004,7 +1004,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::grridingdataAll(QRectF* rect)
 	double z2 = std::min(sqrt(maxX * maxX + maxY * maxY) * tan(maxEl), z1);
 	double gz0 = z0;
 	double gz1 = z2;
-	qDebug("ÕæÕıµÄÍø¸ñ»¯·¶Î§:");
+	qDebug("çœŸæ­£çš„ç½‘æ ¼åŒ–èŒƒå›´:");
 	qDebug() << "x:[" << gx0 << ',' << gx1 << ']' << endl;
 	qDebug() << "y:[" << gy0 << ',' << gy1 << ']' << endl;
 	qDebug() << "z:[" << gz0 << ',' << gz1 << ']' << endl;
@@ -1028,18 +1028,18 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::grridingdataAll(QRectF* rect)
 	double range[2] = {};
 	mVisualWidget->getColorTransferFunction()->GetRange(range);
 
-	// »ñÈ¡×î¸ßÓĞĞ§Z×ø±ê
+	// è·å–æœ€é«˜æœ‰æ•ˆZåæ ‡
 	gz1 = data->detectMaxValidZ(gx0, gx1,
 		gy0, gy1,
 		gz0, gz1,
-		nx / 2, ny / 2, nz / 4, // ´ÖÂÔÒ»µã½µµÍ¼ÆËãÁ¿
+		nx / 2, ny / 2, nz / 4, // ç²—ç•¥ä¸€ç‚¹é™ä½è®¡ç®—é‡
 		range[0], range[1]);
 
 	vtkNew<vtkFloatArray> dataArray;
 	dataArray->SetNumberOfComponents(1);
 	dataArray->SetNumberOfTuples(static_cast<vtkIdType>(nx) * ny * nz);
 
-	// Íø¸ñ»¯
+	// ç½‘æ ¼åŒ–
 	data->gridding(gx0, gx1,
 		gy0, gy1,
 		gz0, gz1,
@@ -1050,9 +1050,9 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::grridingdataAll(QRectF* rect)
 	const int nxy = nx * ny;
 
 
-	qDebug() << "¿ªÊ¼Ğ´ÎÄ¼ş" << endl;
+	qDebug() << "å¼€å§‹å†™æ–‡ä»¶" << endl;
 	TRadar3DWnd::wirteData(nx, ny, nz, pointer);
-	qDebug() << "ÎÄ¼şĞ´ÈëÍê³É" << endl;
+	qDebug() << "æ–‡ä»¶å†™å…¥å®Œæˆ" << endl;
 
 	//TRadar3DWnd::readData();
 
@@ -1070,16 +1070,16 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::grridingdataAll(QRectF* rect)
 	imageData->GetPointData()->SetScalars(dataArray);
 	imageData->SetSpacing(spaceX, spaceY, spaceZ);
 	imageData->SetOrigin(0, 0, (data->elev + gz0));
-	qDebug() << "Z£º" << data->elev + gz0 << endl;;
+	qDebug() << "Zï¼š" << data->elev + gz0 << endl;;
 	rect->setRect(0, 0, x1 - x0, y1 - y0);
 	//imageData->SetOrigin(-0.5 * spaceX * (nx - 1), -0.5 * spaceY * (ny - 1), (data->elev + gz0));
 	//rect->setRect(-0.5 * spaceX * (nx - 1), -0.5 * spaceY * (ny - 1), x1 - x0, y1 - y0);
 	//imageData->SetOrigin(-0.5 * spaceX * (nx - 1), -0.5 * spaceY * (ny - 1), (data->elev + gz0));
 	//auto t2 = std::chrono::steady_clock::now();
-	//printDTime(t1, t2, "³éÈ¡Êı¾İºÄÊ±");
+	//printDTime(t1, t2, "æŠ½å–æ•°æ®è€—æ—¶");
 	return imageData;
 }
-// ¸ß³ÌµØÍ¼×ªvtkPolyData
+// é«˜ç¨‹åœ°å›¾è½¬vtkPolyData
 vtkSmartPointer<vtkPolyData> TRadar3DWnd::toVtkPolyData(const QRectF& rect) 
 {
 	const GRenderConfig& config = GConfig::mRenderConfig;
@@ -1088,14 +1088,14 @@ vtkSmartPointer<vtkPolyData> TRadar3DWnd::toVtkPolyData(const QRectF& rect)
 	const int elevWidth = mElevImage.width();
 	const int elevHeight = mElevImage.height();
 
-	// ¸ß³Ì¶à±ßĞÎ
+	// é«˜ç¨‹å¤šè¾¹å½¢
 	vtkSmartPointer<vtkPolyData> elevationPoly = vtkSmartPointer<vtkPolyData>::New();
-	// Íø¸ñµã
+	// ç½‘æ ¼ç‚¹
 	vtkSmartPointer<vtkPoints> elevationPoints = vtkSmartPointer<vtkPoints>::New();
 	elevationPoints->SetNumberOfPoints(elevWidth * elevHeight);
 
 	vtkIdType pointIndex = 0;
-	// Æğµã
+	// èµ·ç‚¹
 	double sx = -rect.width()*0.1;
 	double sy = -rect.height()*0.1;
 
@@ -1105,21 +1105,21 @@ vtkSmartPointer<vtkPolyData> TRadar3DWnd::toVtkPolyData(const QRectF& rect)
 	for (int row = 0; row < elevHeight; row++) 
 	{
 		const double y = sy + row * dy;
-		// ÓĞ·ûºÅ16Î»
+		// æœ‰ç¬¦å·16ä½
 		const short* elevLine = (short*)mElevImage.scanLine(elevHeight - row - 1);
 		for (int col = 0; col < elevWidth; col++) 
 		{
 			double elevtion = elevLine[col];
-			//if (elevtion == -0x8000) { // ÎŞĞ§Öµ
+			//if (elevtion == -0x8000) { // æ— æ•ˆå€¼
 			//    elevtion = 0;
 			//}
 			//if (elevtion >= 0x8000) { // 32768
 			//    elevtion = elevtion - 0x10000; // 65536
-			//    if (elevtion == -0x8000) { // ÎŞĞ§Öµ
+			//    if (elevtion == -0x8000) { // æ— æ•ˆå€¼
 			//        elevtion = 0;
 			//    }
 			//}
-			// ÉèÖÃ¸ß³Ì ÏÂ½µ10km
+			// è®¾ç½®é«˜ç¨‹ ä¸‹é™10km
 			//elevationPoints->SetPoint(pointIndex++, sx + col * dx, y, elevtion * config.mElevScale - 10000);
 			elevationPoints->SetPoint(pointIndex++, sx + col * dx, y, elevtion - 10000);
 		}
@@ -1129,7 +1129,7 @@ vtkSmartPointer<vtkPolyData> TRadar3DWnd::toVtkPolyData(const QRectF& rect)
 	auto dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
 	qDebug() << "Fill elevation: " << dtime.count() << " milliseconds" << endl;
 
-	//// Èı½ÇÆÊ·Ö
+	//// ä¸‰è§’å‰–åˆ†
 	elevationPoly->Allocate((elevWidth - 1) * (elevHeight - 1) * 2);
 	vtkIdList* list = vtkIdList::New();
 	for (int j = 0; j < elevHeight - 1; j++) {
@@ -1166,7 +1166,7 @@ void TRadar3DWnd::setRadarDataIndex(const int index)
 	this->mRadarDataIndex = index;
 	if (mIsRendered) 
 	{ 
-		// Èç¹ûÒÑ¾­¿ªÊ¼äÖÈ¾£¬ÄÇÃ´¾Í¸üĞÂäÖÈ¾µÄÀ×´ïÊı¾İ
+		// å¦‚æœå·²ç»å¼€å§‹æ¸²æŸ“ï¼Œé‚£ä¹ˆå°±æ›´æ–°æ¸²æŸ“çš„é›·è¾¾æ•°æ®
 		render();
 	}
 }
@@ -1253,7 +1253,7 @@ void TRadar3DWnd::render()
 
 	if (!mIsRendered)
 	{
-		// Èç¹ûÊÇµÚÒ»´ÎÏÔÊ¾Êı¾İÌå
+		// å¦‚æœæ˜¯ç¬¬ä¸€æ¬¡æ˜¾ç¤ºæ•°æ®ä½“
 
 		auto t1 = std::chrono::steady_clock::now();
 		auto dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
@@ -1264,7 +1264,7 @@ void TRadar3DWnd::render()
 
 		//pointData->SetCopyTCoords(true);
 
-		// ¼ÆËãÎÆÀíÓ³Éä×ø±ê
+		// è®¡ç®—çº¹ç†æ˜ å°„åæ ‡
 		vtkNew<vtkFloatArray> tCoords;
 		//tCoords->SetName("Texture Coordinates");
 		tCoords->SetNumberOfComponents(2);
@@ -1284,14 +1284,14 @@ void TRadar3DWnd::render()
 			tcoords[1] = (point[1] - y0) / h;
 			tCoords->SetTuple(i, tcoords);
 		}
-		// ÉèÖÃÎÆÀíÓ³Éä×ø±ê
+		// è®¾ç½®çº¹ç†æ˜ å°„åæ ‡
 		terrainPolyData->GetPointData()->SetTCoords(tCoords);
 
 		auto t2 = std::chrono::steady_clock::now();
 		dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
 		qDebug() << "toVtkPolyData + Texture map: " << dtime.count() << " milliseconds" << endl;
 
-		// ´´½¨ÎÆÀí
+		// åˆ›å»ºçº¹ç†
 		vtkSmartPointer<vtkImageData> terrainImage = VTKUtil::toVtkImageData(&mMapImage);
 		mVisualWidget->setTerrainData(terrainPolyData, terrainImage);
 
@@ -1341,7 +1341,7 @@ void TRadar3DWnd::renderAfterPrerdict()
 
 	if (!mIsRendered)
 	{
-		// Èç¹ûÊÇµÚÒ»´ÎÏÔÊ¾Êı¾İÌå
+		// å¦‚æœæ˜¯ç¬¬ä¸€æ¬¡æ˜¾ç¤ºæ•°æ®ä½“
 
 		auto t1 = std::chrono::steady_clock::now();
 		auto dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
@@ -1352,7 +1352,7 @@ void TRadar3DWnd::renderAfterPrerdict()
 
 		//pointData->SetCopyTCoords(true);
 
-		// ¼ÆËãÎÆÀíÓ³Éä×ø±ê
+		// è®¡ç®—çº¹ç†æ˜ å°„åæ ‡
 		vtkNew<vtkFloatArray> tCoords;
 		//tCoords->SetName("Texture Coordinates");
 		tCoords->SetNumberOfComponents(2);
@@ -1372,14 +1372,14 @@ void TRadar3DWnd::renderAfterPrerdict()
 			tcoords[1] = (point[1] - y0) / h;
 			tCoords->SetTuple(i, tcoords);
 		}
-		// ÉèÖÃÎÆÀíÓ³Éä×ø±ê
+		// è®¾ç½®çº¹ç†æ˜ å°„åæ ‡
 		terrainPolyData->GetPointData()->SetTCoords(tCoords);
 
 		auto t2 = std::chrono::steady_clock::now();
 		dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
 		qDebug() << "toVtkPolyData + Texture map: " << dtime.count() << " milliseconds" << endl;
 
-		// ´´½¨ÎÆÀí
+		// åˆ›å»ºçº¹ç†
 		vtkSmartPointer<vtkImageData> terrainImage = VTKUtil::toVtkImageData(&mMapImage);
 		mVisualWidget->setTerrainData(terrainPolyData, terrainImage);
 
@@ -1392,7 +1392,7 @@ void TRadar3DWnd::renderAfterPrerdict()
 
 	mVisualWidget->renderScene();
 }
-//½«Õû¸öÊı¾İÌå½øĞĞäÖÈ¾
+//å°†æ•´ä¸ªæ•°æ®ä½“è¿›è¡Œæ¸²æŸ“
 void TRadar3DWnd::renderAll()
 {
 	auto t0 = std::chrono::steady_clock::now();
@@ -1431,7 +1431,7 @@ void TRadar3DWnd::renderAll()
 
 	if (!mIsRendered)
 	{
-		// Èç¹ûÊÇµÚÒ»´ÎÏÔÊ¾Êı¾İÌå
+		// å¦‚æœæ˜¯ç¬¬ä¸€æ¬¡æ˜¾ç¤ºæ•°æ®ä½“
 
 		auto t1 = std::chrono::steady_clock::now();
 		auto dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
@@ -1442,7 +1442,7 @@ void TRadar3DWnd::renderAll()
 
 		//pointData->SetCopyTCoords(true);
 
-		// ¼ÆËãÎÆÀíÓ³Éä×ø±ê
+		// è®¡ç®—çº¹ç†æ˜ å°„åæ ‡
 		vtkNew<vtkFloatArray> tCoords;
 		//tCoords->SetName("Texture Coordinates");
 		tCoords->SetNumberOfComponents(2);
@@ -1462,14 +1462,14 @@ void TRadar3DWnd::renderAll()
 			tcoords[1] = (point[1] - y0) / h;
 			tCoords->SetTuple(i, tcoords);
 		}
-		// ÉèÖÃÎÆÀíÓ³Éä×ø±ê
+		// è®¾ç½®çº¹ç†æ˜ å°„åæ ‡
 		terrainPolyData->GetPointData()->SetTCoords(tCoords);
 
 		auto t2 = std::chrono::steady_clock::now();
 		dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
 		qDebug() << "toVtkPolyData + Texture map: " << dtime.count() << " milliseconds" << endl;
 
-		// ´´½¨ÎÆÀí
+		// åˆ›å»ºçº¹ç†
 		vtkSmartPointer<vtkImageData> terrainImage = VTKUtil::toVtkImageData(&mMapImage);
 		mVisualWidget->setTerrainData(terrainPolyData, terrainImage);
 
@@ -1516,7 +1516,7 @@ void TRadar3DWnd::on_actSaveVolume_triggered()
 {
 	if (!mVisualWidget->getImageData()) return;
 
-	QString filename = QFileDialog::getSaveFileName(this, "Ñ¡Ôñ±£´æÎ»ÖÃ", "", "Êı¾İÌå(*.mha)");
+	QString filename = QFileDialog::getSaveFileName(this, "é€‰æ‹©ä¿å­˜ä½ç½®", "", "æ•°æ®ä½“(*.mha)");
 	if (filename.isEmpty()) return;
 
 	VTKUtil::saveImageDataToMeta(mVisualWidget->getImageData(), filename.toStdString().c_str());
@@ -1524,7 +1524,7 @@ void TRadar3DWnd::on_actSaveVolume_triggered()
 
 void TRadar3DWnd::on_actSnap_triggered()
 {
-	QString filename = QFileDialog::getSaveFileName(this, "Ñ¡Ôñ±£´æÎ»ÖÃ", "./", "Í¼ÏñÎÄ¼ş (*.jpg *.png)");
+	QString filename = QFileDialog::getSaveFileName(this, "é€‰æ‹©ä¿å­˜ä½ç½®", "./", "å›¾åƒæ–‡ä»¶ (*.jpg *.png)");
 	if (filename.isEmpty()) return;
 
 	if (!filename.endsWith(".jpg", Qt::CaseInsensitive) &&
@@ -1535,7 +1535,7 @@ void TRadar3DWnd::on_actSnap_triggered()
 
 	vtkNew<vtkWindowToImageFilter> filter;
 	filter->SetInput(mVisualWidget->renderWindow());
-	//filter->SetScale(1); // ÉèÖÃËõ·ÅÏµÊı
+	//filter->SetScale(1); // è®¾ç½®ç¼©æ”¾ç³»æ•°
 	filter->Update();
 	vtkImageData* imageData = filter->GetOutput();
 
@@ -1551,7 +1551,7 @@ void TRadar3DWnd::on_actSnap_triggered()
 
 	if (!ret)
 	{
-		QMessageBox::warning(this, "¾¯¸æ", QString("±£´æÎÄ¼ş: \"%1\" Ê§°Ü!").arg(filename));
+		QMessageBox::warning(this, "è­¦å‘Š", QString("ä¿å­˜æ–‡ä»¶: \"%1\" å¤±è´¥!").arg(filename));
 	}
 }
 

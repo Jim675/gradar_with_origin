@@ -755,11 +755,13 @@ void GMapView::mouseReleaseEvent(QMouseEvent* e)
             if (mIsDragRect) // 如果在拖动鼠标选择矩形
             {
                 mIsDragRect = false;
+                // mSelectedRect是当前视口显示的逻辑坐标范围
                 mSelectedRect.setRight(dpXTolpX(x + 1));
                 mSelectedRect.setBottom(dpYTolpY(y + 1));
 
                 // mSelectedRectDp包含了(x, y)这个点
                 mSelectedRectDp.setRight(x);
+                // mSelectedRectDp是选择矩形框屏幕坐标范围
                 mSelectedRectDp.setBottom(y);
 
                 if (!mSelectedRect.isValid()) 

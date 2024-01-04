@@ -542,7 +542,7 @@ void GRadarAlgorithm::interpolateImageOMP(const GRadialSurf* surface, const size
     }
     //delete[] no_smooth;
 }
-// 使用OMP库利用CPU多线程运算
+// 使用OMP库利用CPU多线程运算得到雷达2D图层的imageData
 void GRadarAlgorithm::interpolateImageGrayOMP(const GRadialSurf* surface, const size_t width, const size_t height,
     const double longitude, const double latitude, const double elev,
     const QRectF& bound, vtkColorTransferFunction* mColorTF,

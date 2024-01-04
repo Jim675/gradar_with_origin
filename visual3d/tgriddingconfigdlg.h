@@ -11,7 +11,7 @@ public:
 	TGriddingConfigDlg(QWidget *parent = nullptr);
 	~TGriddingConfigDlg();
 
-	// ÉèÖÃÄ«¿¨ÍĞ×ø±ê·¶Î§
+	// ?????????
 	void setRect(const QRectF& rect);
 
 private:

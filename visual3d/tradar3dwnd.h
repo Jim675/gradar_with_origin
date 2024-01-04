@@ -16,6 +16,7 @@ class GRenderConfig;
 class TSliceConfigDlg;
 class TRenderConfigDlg;
 
+// 雷达数据三维可视化小窗口
 class TRadar3DWnd : public QMainWindow
 {
 	Q_OBJECT
@@ -32,7 +33,7 @@ private:
 	bool							mIsRendered = false;			// 是否已经渲染过
 	TSliceConfigDlg *				mSliceDialog = nullptr;			// 切片设置对话框
 	TRenderConfigDlg *				mRenderConfigDlg = nullptr;		// 渲染设置对话框
-	vector<float>                   mVPreData;						//存储读取预测后的所有雷达数据 2023-7-31
+	vector<float>                   mVPreData;						// 存储读取预测后的所有雷达数据
 public:
 	//雷达站点经纬度，高度
 	double SLon = 0;

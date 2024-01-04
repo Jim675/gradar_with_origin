@@ -23,6 +23,7 @@ class GShapeLayer;
 class GRadarVolume;
 class TRadar3DWnd;
 
+//	主界面的大地图上的雷达可视化
 class TRadarVisualWnd : public QMainWindow
 {
     Q_OBJECT
@@ -36,7 +37,7 @@ private:
 	QCheckBox*						mRadarCBox;			// 显示雷达图层
 
 	vtkSmartPointer< vtkColorTransferFunction > mColorTF;	// 颜色传输函数
-	GRader2DLayer *					mpRaderLayer;		// 雷达2D图层
+	GRader2DLayer *					mpRaderLayer;		// 主页面雷达2D图层
 	GColorBarLayer *				mpColorBarLayer;	// 色标图层
 	GShapeLayer *					mpShapeLayer;		// Shape图层
 
@@ -45,12 +46,12 @@ private:
 
 	bool							mIsAnimate;			// 当前是否在播放雷达2D动画
 	QTimer							mAnimateTimer;		// 播放雷达2D动画的定时器
-	bool							mIsPredict;         //当前是否进行预测
+	bool							mIsPredict;         // 当前是否进行预测
 
 	QVector<basedataImage*>			mBdiList;			// 雷达及数据列表
 
 	QTranslator*                    mTranslator;
-	TRadar3DWnd*					mLastRadar3DWnd = nullptr;
+	TRadar3DWnd*					mLastRadar3DWnd = nullptr;	// 上一个雷达数据三维化小窗口数据
 
 protected:
 

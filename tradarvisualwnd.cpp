@@ -36,7 +36,6 @@
 #include <iostream>
 #include <QTime>
 #include <filesystem>
-
 // TODO(yx): use your predrnn
 //#include "gpredrnn.h"
 //#include "gpredrnn.h"
@@ -46,6 +45,7 @@
 #include <QVector>
 #include "gpredrnn.h"
 
+//  主页面的大小,显示,功能,按钮的初始配置
 TRadarVisualWnd::TRadarVisualWnd(QWidget* parent, Qt::WindowFlags flags) : QMainWindow(parent, flags)
 {
     ui.setupUi(this);
@@ -99,7 +99,7 @@ TRadarVisualWnd::TRadarVisualWnd(QWidget* parent, Qt::WindowFlags flags) : QMain
     QObject::connect(ui.actionStop, &QAction::triggered, this, &TRadarVisualWnd::on_actStop_triggered);
 
     //保存
-   // QObject::connect(ui.actionSave, &QAction::triggered, this, &TRadarVisualWnd::on_actSave_triggered);
+    // QObject::connect(ui.actionSave, &QAction::triggered, this, &TRadarVisualWnd::on_actSave_triggered);
    
     // 添加图层, 先添加的图层先绘制
     // 添加雷达图层
@@ -162,7 +162,7 @@ TRadarVisualWnd::~TRadarVisualWnd()
     mRadarPathSet.clear();
 }
 
-//设置主窗口大小
+//  设置主窗口大小
 void TRadarVisualWnd::setDeskTopWidget()
 {
     QRect desk = QApplication::desktop()->availableGeometry();
@@ -177,11 +177,12 @@ void TRadarVisualWnd::setDeskTopWidget()
     setGeometry(left, top, width, height);
     move((desk.width() - this->width()) / 2, (desk.height() - this->height()) / 2);
 }
+//  将视图移动到指定矩形范围的中心
 void TRadarVisualWnd::centerOn(const QRectF& rc)
 {
     mpView->centerOn(rc);
 }
-
+//  打开文件
 void TRadarVisualWnd::on_actFileOpen_triggered()
 {
     if (mLastRadar3DWnd)
@@ -209,7 +210,7 @@ void TRadarVisualWnd::on_actFileOpen_triggered()
     // 打开文件列表
 	loadRadarFiles(fileList);
 }
-
+//  保存文件
 void TRadarVisualWnd::on_actFileSave_triggered() {
     int find = -1;
     // 获取当前选中的有数据的雷达数据体索引
@@ -245,7 +246,7 @@ void TRadarVisualWnd::on_actFileSave_triggered() {
     // 保存文件
     saveRadarFile(dir_path, find);
 }
-
+//  清空文件列表
 void TRadarVisualWnd::on_actClearFileList_triggered()
 {
     if (mLastRadar3DWnd)
@@ -263,7 +264,7 @@ void TRadarVisualWnd::on_actClearFileList_triggered()
 	ui.mFileListWidget->clear();
 	onRaderIndexChange(-1);
 }
-
+//  退出
 void TRadarVisualWnd::on_actExit_triggered()
 {
     if (mLastRadar3DWnd)
@@ -274,29 +275,29 @@ void TRadarVisualWnd::on_actExit_triggered()
 
     close();
 }
-
+//  开始播放动画
 void TRadarVisualWnd::on_actAnimationStart_triggered()
 {
     this->setAnimate(true);
 }
-
+//  停止播放动画
 void TRadarVisualWnd::on_actAnimationStop_triggered()
 {
     this->setAnimate(false);
 }
-
+//  设置动画播放参数
 void TRadarVisualWnd::on_actAnimationSettings_triggered()
 {
 	TAnimationConfigDlg configDlg;
 	configDlg.exec();
 }
-
+//  重置窗口视图
 void TRadarVisualWnd::on_actViewReset_triggered()
 {
 	ui.mFileListDock->show();
 	ui.mRadarDock->show();
 }
-
+//  当前文件变化
 void TRadarVisualWnd::on_mFileListWidget_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous)
 {
     // 如果当前在动画就忽略
@@ -309,19 +310,19 @@ void TRadarVisualWnd::on_mFileListWidget_currentItemChanged(QListWidgetItem* cur
 	// 通知自己
 	this->onRaderIndexChange(row);
 }
-
+//  二维图层插值状态变化
 void TRadarVisualWnd::on_mInterpCBox_stateChanged(int state)
 {
     bool isCheck = state == Qt::Checked;
     mpRaderLayer->setInterpolate(isCheck);
     ui.actInterpRadarData->setChecked(isCheck);
 }
-
+//  
 void TRadarVisualWnd::on_actInterpRadarData_toggled(bool checked)
 {
     ui.mInterpCBox->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 }
-
+//  雷达显示状态变化
 void TRadarVisualWnd::on_mRadarCBox_stateChanged(int state)
 {
 	ui.mSurfsLayout->invalidate();
@@ -339,7 +340,7 @@ void TRadarVisualWnd::on_actShowRadarData_toggled(bool checked)
 {
     ui.mRadarCBox->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 }
-
+//  仰角选择变化
 void TRadarVisualWnd::onELButtonClicked(int id)
 {
     mpRaderLayer->setSurfaceIndex(id);
@@ -350,8 +351,7 @@ void TRadarVisualWnd::on_actTestServer_triggered()
 {
     
 }
-
-// 选择矩形框
+//  选择矩形框
 void TRadarVisualWnd::on_actSelectRect_triggered(bool checked)
 {
     if (checked) {
@@ -360,7 +360,6 @@ void TRadarVisualWnd::on_actSelectRect_triggered(bool checked)
         mpView->setSelectMode(SELECT_NONE);
     }
 }
-
 /*
 //将ImageData每层分离并保存
 void TRadarVisualWnd::on_actSave_triggered()
@@ -395,9 +394,7 @@ void TRadarVisualWnd::on_actSave_triggered()
     radarVisualDlg->renderAll();
    
 }*/
-
-
-//停止预测
+//  停止预测
 void TRadarVisualWnd::on_actStop_triggered()
 {
     mpRaderLayer->justCenter();
@@ -410,6 +407,7 @@ void TRadarVisualWnd::on_actCN_triggered() {
     QApplication::instance()->installTranslator(mTranslator);
     ui.retranslateUi(this);
 }
+
 void TRadarVisualWnd::on_actEN_triggered() {
     qDebug() << "EN";
     QApplication::instance()->removeTranslator(mTranslator);
@@ -417,7 +415,6 @@ void TRadarVisualWnd::on_actEN_triggered() {
     QApplication::instance()->installTranslator(mTranslator);
     ui.retranslateUi(this);
 }
-
 
 std::string trim(std::string str) {
     if (str.empty()) return str;
@@ -471,42 +468,43 @@ std::map<std::string, std::string> read_model_parameters(const std::string& conf
     has_config_file = true;
     return parameters;
 }
-
-
-//预测
+//  预测
 void TRadarVisualWnd::on_actPredict_triggered()
 {
-
+    // 判断GPU内存是否足够
     if (!is_gpu_memory_suitable()) {
         QMessageBox::warning(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("显存不足"));
         return;
     }
+    // 设置QT的定时器
     QTime timer;
     timer.start();
     int oldsize = mRadarList.size();
+    // 判断是否有足够的雷达数据
     if (mRadarList.size() < 5)
     {
         QMessageBox::information(this, "提示", QString::fromLocal8Bit("请至少打开五个雷达文件"));
         return;
     }
-
+    // 定义了一个常量字符串model_root，并将其初始化为"models"
     const std::string model_root("models");
 
+    // 使用了C++17的文件系统库来检查model_root路径是否存在
     if (!std::filesystem::exists(std::filesystem::path(model_root))) {
         QMessageBox::warning(this, "Error", "Miss prediction models!");
             return;
     }
-
-    // scan models from dir
+    // list_model_files的主要目的是找到model_root路径下所有扩展名为".pt"的文件，并返回它们的文件名
     auto model_list = list_model_files(model_root);
-
+    // 显示对话框
     TPredictDlg predictDialog(model_list, this);
+    // 检测到用户关闭对话框就退出程序
     int code = predictDialog.exec();
     if (code != QDialog::Accepted)
     {
         return;
     }
-
+    // 获取用户选择的模型索引和预测个数
     int predictNum = 0;
     int chooseIndex = 0;
     predictDialog.getInfo(chooseIndex, predictNum);
@@ -525,23 +523,25 @@ void TRadarVisualWnd::on_actPredict_triggered()
     //mpRaderLayer->justCenter();
     string path;
     int image_width = 920;
+    // 被分割出来的小块的宽度和高度
     int patchsize = 5;
     float maxmin = 1;
     bool predictIn = true;//是否插值
     bool usesimvp = false;
 
-    // model path
+    // 选择预测的模型,合成地址
     path = model_root + "/" + model_list[chooseIndex];
     qDebug() << "model path" << QString::fromStdString(path) << endl;
-    // read model config
+    // 预先生成配置文件txt格式
     std::string model_name = model_list[chooseIndex];
     std::string config_file_path = model_root + "/" + model_name.substr(0, model_name.find_last_of(".")) + ".txt";
 
+    // 读取配置文件,并返回配置的参数和是否存在配置文件
     bool has_config_file;
     auto parameters = read_model_parameters(config_file_path, has_config_file);
-
+    // 如果没有配置文件,则退出
     if (!has_config_file) { return; }
-
+    // 下面一连串的if/else都是如果配置文件中没有指定参数,则使用默认值
     if (parameters.find("image_width") == parameters.end()) {
         QMessageBox::warning(this, "Warning", QString("parameter image_width is empty, use default value: %1").arg(image_width));
     }
@@ -580,9 +580,9 @@ void TRadarVisualWnd::on_actPredict_triggered()
     QProgressDialog* dialog = new QProgressDialog(this);
     dialog->setWindowTitle(QString::fromLocal8Bit("正在预测"));
     dialog->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
-    //dialog->setAttribute(Qt::WidgetAttribute::WA_DeleteOnClose, true);
+    // dialog->setAttribute(Qt::WidgetAttribute::WA_DeleteOnClose, true);
     dialog->setMinimumDuration(0);
-    //dialog->setMinimum(0);
+    // dialog->setMinimum(0);
     // dialog->setMaximum(100);
     dialog->setRange(0, 100);
     dialog->setModal(true);
@@ -592,59 +592,82 @@ void TRadarVisualWnd::on_actPredict_triggered()
     dialog->setValue(0);
     QVector<QVector<QImage>> Images;
     // int ret = mpRaderLayer->savePreInfo(Images, predictNum);
-     //int ret = mpRaderLayer->savePreInfo(Images);
-     // 
-     //920或1840插值
+    // int ret = mpRaderLayer->savePreInfo(Images);
+    // 920或1840插值
 
+    // 用于显示进度条的百分比
     int progressValue = 0;
+    // 用于判断线程是否执行完毕
     bool complete = false;
+
+    /** 创建了一个新的线程，并立即开始执行,thread的流程如下:
+        1. 获取雷达数据
+        2. 预测
+        3. 显示预测结果,生成新的雷达数据体
+    **/
     std::thread thread([&]() {
         int ret = 0;
+        // mpRaderLayer是雷达2D图层
         mpRaderLayer->imgwidth = image_width;
-        if (predictIn) ret = mpRaderLayer->savePreInfoIn(Images);
-        else ret = mpRaderLayer->savePreInfo(Images);
+        // Images是雷达数据转换成2D图层需要的预数据,是一个二维数组,有几个雷达他就有多长
+        if (predictIn) ret = mpRaderLayer->savePreInfoIn(Images); //插值
+        else ret = mpRaderLayer->savePreInfo(Images); //不插值
 
-        //mpRaderLayer->setPreImage(Images[0]);
-        //mpRaderLayer->convertdptolp();
+        //  mpRaderLayer->setPreImage(Images[0]);
+        //  mpRaderLayer->convertdptolp();
         progressValue = 10;
-        //dialog->setValue(10);
+        //  dialog->setValue(10);
 
         auto pred = IPredict::load(path);
 
         pred->setProperties(predictNum, image_width, patchsize, maxmin);
 
+        // res[雷达][锥面],有五个包含九个锥面的雷达的数据
         QVector<QVector<QImage>> res = pred->predict(Images, usesimvp);
 
         progressValue = 30;
-        //dialog->setValue(30);
-        //dialog->setWindowTitle("数据插值整合");
+        //  dialog->setValue(30);
+        //  dialog->setWindowTitle("数据插值整合");
 
         QString fileName = "Predict";
+
+        /**
+            1. predictNum是用户输入的在预测后生成的预测结果的个数,最大是5,最小要大于载入的雷达个数
+            2. 系统有强制要求加载的雷达个数大于五,所以predictNum恒小于等于五
+            3. 预测的结果就是返回有五个包含九个锥面的雷达的数据
+        **/
         int space = 70 / predictNum;
         for (int i = 0; i < predictNum; i++)
         {
-            //插值
-        //    progressValue = 40;
+            //  插值
+            //  progressValue = 40;
+            //  预测就是用所有雷达的同一个锥面来预测!!!,下面传入的res[i]是一维数组
             if (predictIn) mpRaderLayer->load_PredictImageIn(res[i], i);
             else mpRaderLayer->load_PredictImage(res[i], i);
-            //不插值
-            //mpRaderLayer->load_PredictImage(res[i], i);
-            //mpRaderLayer->load_PredictImage(Images[i],i);
-         //   progressValue = 50;
-            //mpRaderLayer->load_PredictImageIn(Images[i], i);
+            //  不插值
+            //  mpRaderLayer->load_PredictImage(res[i], i);
+            //  mpRaderLayer->load_PredictImage(Images[i],i);
+            //  progressValue = 50;
+            //  mpRaderLayer->load_PredictImageIn(Images[i], i);
+
+            //  整合数据体
             mpRaderLayer->CompleteVolume();
+            //  GRadarVolume是雷达数据体
             GRadarVolume* volume = new GRadarVolume();
-        //    progressValue = 60;
+            //  progressValue = 60;
+
+            //  oldsize是全部载入的雷达数据体的个数
             volume = mpRaderLayer->CompPredictVolumeP(oldsize, i + 1);
+            //  mRadarList是用户加载的雷达数据体的列表
             mRadarList.push_back(volume);
-          //  progressValue = 70;
+            //  progressValue = 70;
             QString number = QString::number(i + 1);
             QString name = fileName + number;
             mRadarPathSet.insert(name);
             ui.mFileListWidget->addItem(name);
             mpRaderLayer->clearConten();
-           // int showvalue = 30 + space * (i + 1);
-           // dialog->setValue(showvalue);
+            //  nt showvalue = 30 + space * (i + 1);
+            //  dialog->setValue(showvalue);
             progressValue = 30 + space * (i + 1);
 
         }
@@ -839,20 +862,24 @@ void TRadarVisualWnd::on_actPredict_triggered()
     */
   
 }
-// 选择矩形框回调 rect为屏幕坐标
+//  选择矩形框回调 rect为屏幕坐标
 void TRadarVisualWnd::onSelectedRect(const QRect& rect)
 {
     QRect lastRect;
+    // 如果上次有雷达数据三维可视化小窗口就关闭并且清除
 	if (mLastRadar3DWnd)
 	{
+        // 获取mLastRadar3DWnd对象的窗口的位置和大小，并将其存储在lastRect变量中
         lastRect = mLastRadar3DWnd->geometry();
         delete mLastRadar3DWnd;
 		mLastRadar3DWnd = nullptr;
 	}
-    
-
-    //此次为添加
     int ret = -1;
+    /**
+        1. mpRaderLayer是主页面雷达2d图层
+        2. 他有函数可以获取当前显示的雷达数据体,索引,绘制2D图像等功能
+        3. 有预测数据就优先使用预测数据
+    **/
     ret = mpRaderLayer->getPredict();
     const GRadarVolume* data = nullptr;
     if (ret == -1)
@@ -860,7 +887,7 @@ void TRadarVisualWnd::onSelectedRect(const QRect& rect)
     else
         data = mpRaderLayer->getPredictVolume();
 
-    //const GRadarVolume* data = mpRaderLayer->getCurRaderData();
+    //  const GRadarVolume* data = mpRaderLayer->getCurRaderData();
     if (data == nullptr)
     {
         QMessageBox::information(this, windowTitle(), QString::fromLocal8Bit("请先加载雷达数据!"));
@@ -870,43 +897,57 @@ void TRadarVisualWnd::onSelectedRect(const QRect& rect)
     {
         return;
     }
+    //  构造一个以（x，y）为左上角、给定宽度和高度的矩形。
     QRect rect1(rect.left() - rect.width() * 0.1, rect.top() - rect.height() * 0.1,
         rect.width() * 1.2, rect.height() * 1.2);
+    
+    //  保存选择的矩形框的地图图片,mpView是主视图,是地图视图类
     QImage mapImage = mpView->saveSelectRectImage(rect1);
+    //  获取当前选择的矩形框的高程图像
     QImage elevImage = mpView->getElevationImage(rect1);
+    //  屏幕坐标转换到逻辑坐标,即将rect矩形的坐标转换为另一种坐标
     QRectF mktRect = mpView->dpTolp(rect);
+    
     TGriddingConfigDlg configDlg(this);
     configDlg.setRect(mktRect);
     if (configDlg.exec() != QDialog::Accepted) return;
 
+    //  radarVisualDlg是雷达数据三维可视化小窗口
     TRadar3DWnd* radarVisualDlg = new TRadar3DWnd(this);
     radarVisualDlg->setAttribute(Qt::WidgetAttribute::WA_DeleteOnClose, true);
     connect(radarVisualDlg, SIGNAL(destroyed(QObject*)), this, SLOT(radar3DWndDestroyed(QObject*)));
-    // 设置数据
+    //  设置数据
+    //  获取雷达数据列表(将主页的2d雷达数据列表赋值给雷达数据三维可视化小窗口的雷达数据列表)
     radarVisualDlg->setRadarDataList(mpRaderLayer->getRaderDataList());
+    //  获取当前显示的雷达索引(同上)
     radarVisualDlg->setRadarDataIndex(mpRaderLayer->getRaderDataIndex());
+    // 	设置地图图像
     radarVisualDlg->setMapImage(&mapImage);
+    // 	设置高程图像
     radarVisualDlg->setElevImage(&elevImage);
+    // 	设置网格化范围（web墨卡托投影坐标）
     radarVisualDlg->setGridRect(mktRect);
+    //  获取颜色表
     radarVisualDlg->setColorTransferFunction(mpRaderLayer->getColorTransferFunction());
     //radarDialog->setGridSize(dialog.nx, dialog.ny, dialog.nz);
     if (!lastRect.isEmpty())
     {
+        //  lastRect是雷达数据可视化小对象的窗口的位置和大小
         radarVisualDlg->setGeometry(lastRect);
     }
+    //  显示radarVisualDlg对话框或窗口
     radarVisualDlg->show();
+    //  渲染数据
     radarVisualDlg->render();
-
+    //  将新的雷达数据三维可视化小窗口展示的数据赋值给mLastRadar3DWnd
     mLastRadar3DWnd = radarVisualDlg;
 }
-
 
 void TRadarVisualWnd::radar3DWndDestroyed(QObject*)
 {
     mLastRadar3DWnd = nullptr;
 }
-
-// 文件->打开 打开雷达文件的回调函数
+//  文件->打开 打开雷达文件的回调函数
 void TRadarVisualWnd::loadRadarFiles(const QStringList& fileList)
 {
     int oldRadarNum = mRadarList.size();
@@ -1021,8 +1062,7 @@ void TRadarVisualWnd::loadRadarFiles(const QStringList& fileList)
     mpRaderLayer->setRaderDataIndex(find);
     ui.mFileListWidget->setCurrentRow(find);
 }
-
-// 保存修改后的雷达数据
+//  保存修改后的雷达数据
 void TRadarVisualWnd::saveRadarFile(const QString& filepath, int mIndex) {
 
     //非预测数据不能保存
@@ -1095,8 +1135,7 @@ void TRadarVisualWnd::saveRadarFile(const QString& filepath, int mIndex) {
         }
     }
 }
-
-// 雷达索引改变回调
+//  雷达索引改变回调
 void TRadarVisualWnd::onRaderIndexChange(int index)
 {
     // 清空RadioButtons
@@ -1149,8 +1188,7 @@ void TRadarVisualWnd::onRaderIndexChange(int index)
         ui.mSurfsLayout->addWidget(rb, i / 4, i % 4);
     }
 }
-
-// 设置雷达图层是否播放动画
+//  设置雷达图层是否播放动画
 void TRadarVisualWnd::setAnimate(bool isAnimate)
 {
     if (this->mIsAnimate == isAnimate) {
@@ -1173,8 +1211,7 @@ void TRadarVisualWnd::setAnimate(bool isAnimate)
         mAnimateTimer.stop();
     }
 }
-
-// 雷达2D动画超时回调
+//  雷达2D动画超时回调
 void TRadarVisualWnd::onAnimateTimeout()
 {
     size_t radarNum = mRadarList.size();
@@ -1209,4 +1246,3 @@ void TRadarVisualWnd::onAnimateTimeout()
     //onRaderIndexChange(find);
     ui.mFileListWidget->setCurrentRow(find);
 }
-

@@ -75,7 +75,7 @@ public:
 };
 
 
-// 数据体
+// 雷达数据体
 class GRadarVolume
 {
 public:

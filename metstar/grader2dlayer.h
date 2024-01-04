@@ -23,7 +23,7 @@ class GRadialVolume;
 //class vtkDiscretizableColorTransferFunction;
 //class vtkColorTransferFunction;
 
-// 雷达2D图层
+// 雷达2D图层, 用于在主页面显示雷达数据的二维图像
 class GRader2DLayer : public GMapLayer, public QObject
 {
     //Q_OBJECT;
