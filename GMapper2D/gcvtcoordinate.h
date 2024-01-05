@@ -47,12 +47,14 @@ public:
     // 屏幕坐标转换到逻辑坐标
     virtual QRectF dpTolp(const QRect& rc) const
     {
+        // 将矩形的左上角坐标通过调用 dpTolp 函数转换为逻辑坐标，并存储在 pt1 中。
         QPointF pt1 = dpTolp(rc.topLeft());
         // QPointF pt2 = dpTolp(rc.bottomRight()); 这种方法转换出来的宽和高都会少1个像素
 
-        // 统一使用宽和高来转换坐标
+        // 统一使用宽和高来转换坐标,将矩形的右下角坐标的 x 和 y 坐标转换为逻辑坐标，并分别存储在 x2 和 y2 中。
         qreal x2 = dpXTolpX(rc.x() + rc.width());
         qreal y2 = dpYTolpY(rc.y() + rc.height());
+        // 最后，根据转换后的左上角和右下角坐标，构建一个新的逻辑坐标的矩形，并返回
         return QRectF(pt1.x(), y2, x2 - pt1.x(), pt1.y() - y2);
     }
     //////////2023-9-10

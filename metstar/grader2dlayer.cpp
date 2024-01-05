@@ -34,6 +34,7 @@ IMPL_GREFLECTION_CLASS(GRader2DLayer, GMapLayer)
 static void printDTime(std::chrono::steady_clock::time_point start, std::chrono::steady_clock::time_point end, const char* msg);
 static void smoothImage(const size_t width, const size_t height, double* points, double* smooth, const double invalid);
 
+// 雷达2D图层, 用于在主页面显示雷达数据的二维图像
 GRader2DLayer::GRader2DLayer()
 {
     mColorTF = NULL;
@@ -61,6 +62,7 @@ vtkColorTransferFunction* GRader2DLayer::getColorTransferFunction()
     return mColorTF;
 }
 
+// 设置颜色表
 void GRader2DLayer::setColorTransferFunction(vtkColorTransferFunction* pColorTF)
 {
 	mColorTF = pColorTF;
@@ -256,6 +258,7 @@ void GRader2DLayer::drawPredictSector(QPainter* painter, const QRect& rect)
     }
     
 }
+
 // 绘制不插值的雷达扇区
 void GRader2DLayer::drawSector(QPainter* painter, const QRect& rect)
 {
@@ -386,7 +389,8 @@ int GRader2DLayer::getPredict()
     else
         return -1;
 }
-//清空之前的内容
+
+// 清空之前的内容
 void GRader2DLayer::clearConten()
 {
     mlons.clear();
@@ -398,6 +402,8 @@ void GRader2DLayer::clearConten()
     mgvalues.clear();
     moneELnums.clear();
 }
+
+// 调整中心位置
 void GRader2DLayer::justCenter()
 {
     auto* volume = mRaderDataList->at(0);
@@ -416,6 +422,7 @@ void GRader2DLayer::justCenter()
     }
     getView()->update();
 }
+
 // 绘制插值后的图像
 void GRader2DLayer::drawInterpolation(QPainter* painter, const QRect& rect)
 {

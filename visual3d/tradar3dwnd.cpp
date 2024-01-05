@@ -86,21 +86,27 @@ const GRadarVolume* TRadar3DWnd::getCurRadarData()
 	
 	return (*this->mRadarDataList)[this->mRadarDataIndex];
 }
-// 	网格化雷达数据
+// 	网格化雷达数据,这个函数的主要目的是将雷达数据进行网格化处理，并将处理后的数据存储在一个vtkImageData对象中，以便后续的可视化处理。
 vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
-{
+{	
+	// 	渲染配置,包括不透明度,插值方式,光照等
 	const GRenderConfig& config = GConfig::mRenderConfig;
+	// 	获取当前选择的一个雷达数据
 	const GRadarVolume* data = getCurRadarData();
 	if (!data) return nullptr;
 	//if (!data || data->surfs.size() == 0) return nullptr;
 
+	//  保存一个时间戳
 	auto t0 = std::chrono::steady_clock::now();
 	double mx = 0, my = 0;
+	// 	坐标转换,将经纬度转换为web墨卡托坐标
 	GMapCoordConvert::lonLatToMercator(data->longitude, data->latitude, &mx, &my);
 	// 计算数据体边界范围
 	double x0 = 0, x1 = 0, y0 = 0, y1 = 0, z0 = 0, z1 = 0;
+	// 计算雷达数据体边界范围
 	data->calcBoundBox(x0, x1, y0, y1, z0, z1);
 
+	// 	mGridRect:网格化范围（web墨卡托投影坐标）
 	x0 = mGridRect.left() - mx;
 	x1 = mGridRect.right() - mx;
 	y0 = mGridRect.top() - my;
@@ -147,6 +153,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 
 	vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
 
+	// 网格化配置
 	int nx = GConfig::mGriddingConfig.mNX;
 	int ny = GConfig::mGriddingConfig.mNY;
 	int nz = GConfig::mGriddingConfig.mNZ;
@@ -204,7 +211,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	//printDTime(t1, t2, "抽取数据耗时");
 	return imageData;
 }
-// 	加载图片
+// 	加载图片,加载预测的雷达图像，并将图像数据转换为经纬度坐标
 int TRadar3DWnd::load_PredictImage(GRader2DLayer* layer, QVector<QImage> Image)
 {
 	QPoint p = layer->getLonpLatp();
@@ -379,7 +386,7 @@ void  TRadar3DWnd::CompleteVolume()
 	qDebug() << "c" << endl;
 
 }
-// 	渲染预测后的雷达数据体
+// 	渲染 -- 预测后的雷达数据体
 void TRadar3DWnd::renderPrerdict()
 {
 	auto t0 = std::chrono::steady_clock::now();
@@ -470,7 +477,7 @@ void TRadar3DWnd::renderPrerdict()
 
 	mVisualWidget->renderScene();
 }
-//	网格化预测后的数据
+//	网格化 -- 预测后的数据
 vtkSmartPointer<vtkImageData> TRadar3DWnd::gridingPreData()
 {
 	const GRenderConfig& config = GConfig::mRenderConfig;
@@ -886,6 +893,7 @@ void TRadar3DWnd::wirteData(int nx, int ny, int nz, float* pointer)
 	}
 	*/
 }
+//	构建ImageData
 vtkSmartPointer<vtkImageData> TRadar3DWnd::completeImageData()
 {
 	const GRenderConfig& config = GConfig::mRenderConfig;
@@ -940,7 +948,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::completeImageData()
 	//printDTime(t1, t2, "抽取数据耗时");
 	return imageData;
 }
-//	将整个雷达数据网格化
+//	网格化 -- 当前雷达数据
 vtkSmartPointer<vtkImageData> TRadar3DWnd::grridingdataAll(QRectF* rect)
 {
 	const GRenderConfig& config = GConfig::mRenderConfig;
@@ -1203,14 +1211,17 @@ void TRadar3DWnd::setColorTransferFunction(vtkColorTransferFunction* colorTF)
 {
 	mVisualWidget->setColorTransferFunction(colorTF);
 }
-// 	渲染雷达数据体
+// 	渲染 -- 雷达数据体
 void TRadar3DWnd::render()
 {
+	// 	获取当前的时间戳
 	auto t0 = std::chrono::steady_clock::now();
 
 	QRectF rect;
 	QTime timer;
 	timer.start();
+	//  和渲染预测后的雷达数据体唯一的区别就是这里
+	// 	获取雷达数据的网格化表示，并存储在 mImageData 中
 	mImageData = griddingData(&rect);
 	qDebug() << "Griding Data time: " << timer.elapsed();
 
@@ -1221,6 +1232,7 @@ void TRadar3DWnd::render()
 	}
 
 	timer.restart();
+	// 下面全是vtk写好的函数的操作,用高斯滤波对雷达数据进行平滑，以改善数据的质量
 	vtkNew<vtkImageGaussianSmooth> smoother;
 	smoother->SetInputData(mImageData);
 	smoother->SetDimensionality(3);
@@ -1244,6 +1256,7 @@ void TRadar3DWnd::render()
 	//mImageData = filter->GetOutput();
 
 	mImageData = smoother->GetOutput();
+
 	qDebug() << "Smooth Data time: " << timer.elapsed();
 	
 	if (!mImageData) 
@@ -1251,22 +1264,24 @@ void TRadar3DWnd::render()
 		qDebug() << "Smooth fail";
 		return;
 	}
+	// 可视化控件,设置xyz方向
 	mVisualWidget->setImageData(mImageData);
 
+	// mIsRendered是是否已经渲染过的标志
 	if (!mIsRendered)
 	{
 		// 如果是第一次显示数据体
-
 		auto t1 = std::chrono::steady_clock::now();
 		auto dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
 		qDebug() << "Data volume gridding: " << dtime.count() << " milliseconds" << endl;
 
+		// 将网格化后的雷达数据转换为VTK的vtkPolyData对象，表示地表的三维几何数据
 		vtkSmartPointer<vtkPolyData> terrainPolyData = toVtkPolyData(rect);
 		//vtkPointData* pointData = terrainPolyData->GetPointData();
 
 		//pointData->SetCopyTCoords(true);
 
-		// 计算纹理映射坐标
+		// 计算纹理映射坐标,这一系列操作的目的是为了在后续的渲染中正确地将纹理映射到地形数据上，确保地形的纹理能够正确映射到对应的位置。
 		vtkNew<vtkFloatArray> tCoords;
 		//tCoords->SetName("Texture Coordinates");
 		tCoords->SetNumberOfComponents(2);
@@ -1279,6 +1294,7 @@ void TRadar3DWnd::render()
 		const double h = rect.height() * 1.2;
 		double point[3] = { 0 };
 		double tcoords[2] = { 0 };
+		// 通过循环计算每个点的纹理映射坐标
 		for (vtkIdType i = 0; i < pointsNum; i++) 
 		{
 			terrainPolyData->GetPoint(i, point);
@@ -1303,10 +1319,10 @@ void TRadar3DWnd::render()
 		mVisualWidget->resetCamera();
 		mIsRendered = true;
 	}
-
+	// 渲染场景
 	mVisualWidget->renderScene();
 }
-// 	将预测后整个数据体进行渲染
+// 	渲染 -- 预测后的数据体
 void TRadar3DWnd::renderAfterPrerdict()
 {
 	auto t0 = std::chrono::steady_clock::now();
@@ -1395,7 +1411,7 @@ void TRadar3DWnd::renderAfterPrerdict()
 
 	mVisualWidget->renderScene();
 }
-//	将整个数据体进行渲染
+//	渲染 -- 整个数据体
 void TRadar3DWnd::renderAll()
 {
 	auto t0 = std::chrono::steady_clock::now();

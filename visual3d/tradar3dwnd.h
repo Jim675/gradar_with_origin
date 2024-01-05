@@ -23,7 +23,7 @@ class TRadar3DWnd : public QMainWindow
 
 private:
 	Ui::TRadar3DWndClass			ui;
-	int								mRadarDataIndex = -1;			// 当前显示雷达数据体下标
+	int								mRadarDataIndex = -1;			// 当前显示的雷达数据体下标
 	const QVector<GRadarVolume*>*	mRadarDataList = nullptr;		// 雷达数据体列表
 	vtkSmartPointer<vtkImageData>	mImageData;						// VTK图像数据体
 	GVisualWidget *					mVisualWidget = nullptr;		// 可视化控件

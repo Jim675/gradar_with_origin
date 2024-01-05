@@ -865,11 +865,13 @@ void TRadarVisualWnd::on_actPredict_triggered()
 //  选择矩形框回调 rect为屏幕坐标
 void TRadarVisualWnd::onSelectedRect(const QRect& rect)
 {
+    // QRect类型用于存储矩形的位置和尺寸信息,包含了矩形的左上角坐标、宽度和高度等信息
+    // QRect(int x, int y, int width, int height)
     QRect lastRect;
-    // 如果上次有雷达数据三维可视化小窗口就关闭并且清除
+    // mLastRadar3DWnd是上一个雷达数据三维化小窗口数据,如果上次有雷达数据三维可视化小窗口就关闭并且清除
 	if (mLastRadar3DWnd)
 	{
-        // 获取mLastRadar3DWnd对象的窗口的位置和大小，并将其存储在lastRect变量中
+        // 获取上次的雷达可视化对象的窗口的位置和大小√ OR 上次选择的矩形框的位置和大小×   ????
         lastRect = mLastRadar3DWnd->geometry();
         delete mLastRadar3DWnd;
 		mLastRadar3DWnd = nullptr;
@@ -897,26 +899,30 @@ void TRadarVisualWnd::onSelectedRect(const QRect& rect)
     {
         return;
     }
-    //  构造一个以（x，y）为左上角、给定宽度和高度的矩形。
+    // 新矩形在水平和垂直方向上都向原始矩形的左上角移动了长宽距离的10%,并且宽度和高度都增加到了原始的120%
     QRect rect1(rect.left() - rect.width() * 0.1, rect.top() - rect.height() * 0.1,
         rect.width() * 1.2, rect.height() * 1.2);
-    
-    //  保存选择的矩形框的地图图片,mpView是主视图,是地图视图类
+    //  保存选择的矩形框的地图图片,mpView是主视图,是地图视图类,在主页
     QImage mapImage = mpView->saveSelectRectImage(rect1);
-    //  获取当前选择的矩形框的高程图像
+    //  获取当前选择的矩形框的高程图像,高程图像用于表示地表的高低变化，而瓦片是一种组织地图数据以提高加载性能的方式
     QImage elevImage = mpView->getElevationImage(rect1);
-    //  屏幕坐标转换到逻辑坐标,即将rect矩形的坐标转换为另一种坐标
+    //  屏幕坐标转换到逻辑坐标,构建一个新的逻辑坐标的矩形
     QRectF mktRect = mpView->dpTolp(rect);
-    
     TGriddingConfigDlg configDlg(this);
+    //  将逻辑坐标的矩形的经度、纬度、x坐标和y坐标的值分别设置到用户界面上对应的SpinBox中,以便在界面上显示和修改这些值。
     configDlg.setRect(mktRect);
+    //  弹出"网格化参数设置"的对话框,用户可以设置参数等信息
     if (configDlg.exec() != QDialog::Accepted) return;
 
-    //  radarVisualDlg是雷达数据三维可视化小窗口
+    /*进入终极阶段,雷达二维可视化*/
+
+    //  radarVisualDlg是新的雷达数据三维可视化小窗口
     TRadar3DWnd* radarVisualDlg = new TRadar3DWnd(this);
+    //  用户关闭 radarVisualDlg 窗口时，相应的对象会被自动释放和删除
     radarVisualDlg->setAttribute(Qt::WidgetAttribute::WA_DeleteOnClose, true);
+    //  当 radarVisualDlg 对象被销毁时,mLastRadar3DWnd = nullptr;
     connect(radarVisualDlg, SIGNAL(destroyed(QObject*)), this, SLOT(radar3DWndDestroyed(QObject*)));
-    //  设置数据
+
     //  获取雷达数据列表(将主页的2d雷达数据列表赋值给雷达数据三维可视化小窗口的雷达数据列表)
     radarVisualDlg->setRadarDataList(mpRaderLayer->getRaderDataList());
     //  获取当前显示的雷达索引(同上)
@@ -925,7 +931,7 @@ void TRadarVisualWnd::onSelectedRect(const QRect& rect)
     radarVisualDlg->setMapImage(&mapImage);
     // 	设置高程图像
     radarVisualDlg->setElevImage(&elevImage);
-    // 	设置网格化范围（web墨卡托投影坐标）
+    // 	设置网格化范围（web墨卡托投影坐标）,使用的参数rect是最开始选择的没有扩大的矩形框大小
     radarVisualDlg->setGridRect(mktRect);
     //  获取颜色表
     radarVisualDlg->setColorTransferFunction(mpRaderLayer->getColorTransferFunction());
@@ -935,7 +941,8 @@ void TRadarVisualWnd::onSelectedRect(const QRect& rect)
         //  lastRect是雷达数据可视化小对象的窗口的位置和大小
         radarVisualDlg->setGeometry(lastRect);
     }
-    //  显示radarVisualDlg对话框或窗口
+    
+    //  显示radarVisualDlg窗口
     radarVisualDlg->show();
     //  渲染数据
     radarVisualDlg->render();

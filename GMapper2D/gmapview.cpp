@@ -779,6 +779,7 @@ void GMapView::mouseReleaseEvent(QMouseEvent* e)
                     //double metersPerPixel = saveSelectRectImage(mSelectedRectDp);
                     // 发射回调函数
                     //emit onSelectedRect(mSelectedRectDp, &mSelectedImage, metersPerPixel);
+                    // 绑定触发的函数,mSelectedRectDp包含矩形的左上角坐标、宽度和高度等信息
                     emit onSelectedRect(mSelectedRectDp);
                 }
             }
