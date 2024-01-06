@@ -346,6 +346,11 @@ inline double calcAzimuth(double x, double y)
     return azimuth;
 }
 
+GRadialSurf* GRadarVolume::generateNewSurf(vtkImageData* imageData)
+{
+
+}
+
 // 考虑大气折射后的网格化
 void GRadarVolume::gridding(double x0, double x1,
     double y0, double y1,
@@ -596,19 +601,26 @@ int GRadarVolume::findElRange1(double el) const
 // 函数首先确定与指定方位角最接近的两条径向线，然后在这两条径向线上进行线性插值，以获取插值结果。函数使用二分查找来快速定位指定方位角所在的径向线。
 double GRadarVolume::interplateElRadialData(int isurf, double az, double r, double invalidValue) const
 {
-     // 获取指定仰角的雷达仰角数据
+    // 获取指定仰角的雷达数据(在一个锥形上操作)
     const GRadialSurf* pSurf = surfs[isurf];
+    // 获取雷达数据的径向分辨率
     double dopRes = pSurf->interval;
+    // 获取径向数据的点数
     size_t nd = pSurf->radials[0]->points.size();
+    // 如果查询的距离小于径向分辨率或超过数据范围，返回无效值
     if (r < dopRes) return invalidValue;
     if (nd * dopRes < r) return invalidValue;
 
+    // 获取扇面的所有径向线
     const vector<GRadialLine*>& radials = pSurf->radials;
+    // 获取径向线的数量
     int n = pSurf->radials.size();
+    // 初始化二分查找的开始和结束索引
     int begin = 0;
     int end = n - 2;
     size_t index;
 
+    // 使用二分查找找到与指定方位角最接近的两条径向线
     while (begin <= end) {
         index = (begin + end) / 2;
         //cout << index << "," << begin << "," << end << endl;
@@ -619,9 +631,10 @@ double GRadarVolume::interplateElRadialData(int isurf, double az, double r, doub
         } else break;
     }
 
-    // 如果折半查找失败, 说明az位于终止扫描线到起始扫描线之间
+    // 如果折半查找失败, 说明az位于终止扫描线到起始扫描线之间，取最后一条径向线
     if (begin > end) index = pSurf->radials.size() - 1;
 
+    // 计算与指定方位角最接近的两条径向线的方位角差
     double daz0 = az - radials[index]->az;
     if (daz0 < 0) daz0 += 360;
     double daz1 = radials[(index + 1) % n]->az - az;
@@ -643,7 +656,7 @@ double GRadarVolume::interplateElRadialData(int isurf, double az, double r, doub
     s = (d - i0*dopRes) / dopRes;
     return v0 + (v1 - v0)*s;
     */
-
+    // 获取两条径向线上指定距离处的值，并进行线性插值
     GRadialLine* pLine0, * pLine1;
     pLine0 = radials[index];
     pLine1 = radials[(index + 1) % n];
@@ -653,27 +666,29 @@ double GRadarVolume::interplateElRadialData(int isurf, double az, double r, doub
     if (i1 >= nd) i1 = i0;
 
     double v0, v1, vt, vb, s;
-
+    // 计算在径向线0上的值
     v0 = pLine0->points[i0].value;
     v1 = pLine0->points[i1].value;
     if (v0 == invalidValue || v1 == invalidValue) return invalidValue;
     s = (r - i0 * dopRes) / dopRes;
     vt = v0 + (v1 - v0) * s;
-
+    // 计算在径向线1上的值
     v0 = pLine1->points[i0].value;
     v1 = pLine1->points[i1].value;
     if (v0 == invalidValue || v1 == invalidValue) return invalidValue;
     s = (r - i0 * dopRes) / dopRes;
     vb = v0 + (v1 - v0) * s;
-
+    // 根据方位角差进行插值
     s = daz0 / (daz0 + daz1);
     return vt + (vb - vt) * s;
 }
 
-// 径向数据插值,因为地图上的点很可能不落在雷达的径向上,所以要插值,el为仰角可能为小数????,az为方位角角度,r为传播路径弧长,invalid为无效值
+// 径向数据插值,因为地图上的点很可能不落在雷达的径向上,所以要插值,el是通过地图计算出来的理论点,az为方位角角度,r为传播路径弧长,invalid为无效值
 double GRadarVolume::interplateRadialData(double el, double az, double r, double invalid) const
 {
+    //  函数找到仰角 el 所在的范围
     int iel = findElRange1(el);
+    // 如果找到的仰角范围无效，直接返回无效值。
     if (iel == -1) return invalid;
     double v0 = interplateElRadialData(iel, az, r, invalid);
     double v1 = interplateElRadialData(iel + 1, az, r, invalid);

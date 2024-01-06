@@ -31,7 +31,7 @@ class GRadialLine
 {
 public:
     double el = 0.0;                    // 仰角角度
-    double elRadian = 0.0;              // 仰角弧度
+    double elRadian = 0.0;              // 仰角弧度 π=180° π/2=90°
 
     double az = 0.0;                    // 方位角角度
     double azRadian = 0.0;              // 方位角弧度
@@ -51,7 +51,7 @@ public:
 class GRadialSurf
 {
 public:
-    double interval = 0.0;              // 分辨率
+    double interval = 0.0;              // 分辨率,每个数据点的间隔
     double el = 0.0;                    // 平均仰角角度
     double elRadian = 0.0;              // 平均仰角弧度
     vector<GRadialLine*> radials;       // 径向数据
@@ -135,7 +135,8 @@ public:
         double min, double max) const;
 
     void clear();
-
+    // 生成新的锥面
+    GRadialSurf* generateNewSurf(vtkImageData* imageData);
 private:
 
     //// 填充径向数据

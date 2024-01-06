@@ -183,7 +183,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	dataArray->SetNumberOfComponents(1);
 	dataArray->SetNumberOfTuples(static_cast<vtkIdType>(nx) * ny * nz);
 
-	// 网格化
+	// 网格化,目的是找到那个取值
 	data->gridding(gx0, gx1,
 		gy0, gy1,
 		gz0, gz1,
