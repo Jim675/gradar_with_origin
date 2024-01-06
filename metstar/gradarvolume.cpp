@@ -314,10 +314,10 @@ void GRadarVolume::calcBoundBox(double& minX, double& maxX,
         return;
     }
 
-    // 最低仰角
+    // el是最低仰角
     const GRadialSurf* pSurf = surfs[0];
     double el = toRadian(pSurf->el);
-    // 弧长
+    // 弧长(雷达径向的点数乘以径向的间隔)
     const double arcLen = pSurf->radials[0]->points.size() * pSurf->interval;
     // TODO 未考虑大气折射
     const double r = cos(el) * arcLen;
@@ -353,8 +353,9 @@ void GRadarVolume::gridding(double x0, double x1,
     int nx, int ny, int nz,
     double invalid, float* output) const
 {
+    // 计算每个层次（z轴方向）的二维平面上的数据点数。
     const int nxy = nx * ny;
-
+    // 如果雷达数据中没有有效的径向（surfs），则将输出数组中的所有值设置为无效值（invalid）。
     if (surfs.size() <= 0)
     {
         for (int iz = 0; iz < nz; iz++)
@@ -363,7 +364,7 @@ void GRadarVolume::gridding(double x0, double x1,
             {
                 for (int ix = 0; ix < nx; ix++)
                 {
-                    output[iz * nxy + iy * ny + ix] = invalid;
+                    output[iz * nxy + iy * ny + ix] = invalid; //-1000
                 }
             }
         }
@@ -375,25 +376,37 @@ void GRadarVolume::gridding(double x0, double x1,
     const double slat = toRadian(this->latitude);
     //double r, r_square, gz_square, gy_square;
     //double h, H, azimuth, el, d, d_square;
+    // 计算在 x、y 和 z 方向上的间距。
     const double dx = (x1 - x0) / nx;
     const double dy = (y1 - y0) / ny;
     const double dz = (z1 - z0) / nz;
     // 用来保存方位角, 因为循环最外层是z轴, 而同一(x, y)方位角不变, 为了不重复计算方位角, 需要缓存
+    // 创建一个二维数组 cacheAzimuth，用于缓存每个 (x, y) 点的方位角，以减少重复计算。
     vector<vector<double>> cacheAzimuth = vector<vector<double>>(ny, vector<double>(nx, 0));
+    // 外层循环遍历 y 方向上的每个网格点。
     for (int iy = 0; iy < ny; iy++) {
+        // 计算当前 y 方向上的网格点的位置。
         const double gy = y0 + iy * dy;
+        // 获取 cacheAzimuth 中当前行的引用。
         auto& ty = cacheAzimuth[iy];
+        // 内层循环遍历 x 方向上的每个网格点。
         for (int ix = 0; ix < nx; ix++) {
+            // 计算当前 x 方向上的网格点的位置。
             const double gx = x0 + ix * dx;
+            // 计算当前网格点的方位角，并存储在 ty 中,calcAzimuth 函数用于计算方位角，而 toAngle 函数则将弧度转换为角度。
             ty[ix] = toAngle(calcAzimuth(gx, gy));
         }
     }
     size_t index = 0;
     //bool isPrint = false;
     
-#pragma omp parallel for
+// 使用 OpenMP 指令启动并行循环，以便在多个线程上并行执行循环。
+#pragma omp parallel for 
+    // 循环遍历 z 方向上的每个网格点。  
     for (int iz = 0; iz < nz; iz++) {
+        // 计算当前 z 方向上的网格点的位置。
         const double gz = z0 + iz * dz;
+
         //double gz_square = gz * gz;
         //// 高度为z网格点所在平面到地心距离(考虑到大气折射, 地球半径取等效地球半径RE_而不是真实地球半径RE)
         //r = RM + this->elev + z;
@@ -402,24 +415,36 @@ void GRadarVolume::gridding(double x0, double x1,
         //// centerToPlane = r * sin(clat);
         //// 雷达高度
         //h = this->elev;
-        for (int iy = 0; iy < ny; iy++) {
-            const double gy = y0 + iy * dy;
-            const double gy_square = gy * gy;
-            const auto& azy = cacheAzimuth[iy];
-            for (int ix = 0; ix < nx; ix++) {
-                const double gx = x0 + ix * dx;
 
+        // 内层循环遍历 y 方向上的每个网格点。
+        for (int iy = 0; iy < ny; iy++) {
+            // 计算当前 y 方向上的网格点的位置。
+            const double gy = y0 + iy * dy;
+            // 计算 y 方向上的位置的平方。
+            const double gy_square = gy * gy;
+            // 获取预先计算的方位角的引用。(在上面的循环中已经计算过了)
+            const auto& azy = cacheAzimuth[iy];
+            // 再次内层循环遍历 x 方向上的每个网格点。
+            for (int ix = 0; ix < nx; ix++) {
+                // 计算当前 x 方向上的网格点的位置。
+                const double gx = x0 + ix * dx;
+                // 计算雷达到网格点的水平距离。
                 const double gl = sqrt(gx * gx + gy_square);
+                // 计算仰角的上半部分。
                 const double el0 = atan2(gz, gl);
+                // 计算雷达到地心的距离。
                 const double r_ = gl / cos(el0);
+                // 计算仰角的下半部分。
                 const double el1 = asin(0.5 * r_ / RN);
-                // 仰角
+                // 仰角,合并上下两部分得到最终仰角。
                 const double el = toAngle(el0 + el1);
-                // 传播路径弧长
+                // 传播路径弧长,计算传播路径弧长。
                 const double r = 2 * el1 * RN;
-                // 方位角
+                // 方位角,获取方位角。
                 const double azimuth = azy[ix];
+                // 插值雷达数据以获取网格点的值。!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 const double v = interplateRadialData(el, azimuth, r, invalid);
+                // 将插值后的值存储在输出数组中。
                 output[iz * nxy + iy * ny + ix] = v;
             }
         }
@@ -514,7 +539,7 @@ void GRadarVolume::clear()
     surfs.clear();
 }
 
-// 在数据量较多的情况下, 二分查找速度可能更快
+// 在数据量较多的情况下, 二分查找速度可能更快,二分查找仰角区间
 int GRadarVolume::findElRange(double el) const
 {
     int begin = 0, end = surfs.size() - 2;
@@ -532,17 +557,20 @@ int GRadarVolume::findElRange(double el) const
     return -1;
 }
 
-// 在数据量较少的情况下, 顺序查找速度可能更快
+// 在数据量较少的情况下, 顺序查找速度可能更快,顺序查找仰角区间
 int GRadarVolume::findElRange1(double el) const
 {
-    
+    // 获取仰角数组的最大索引，即数组的长度减去1。
     const int n = surfs.size() - 1;
-   
+    // 检查给定的仰角是否在数组范围之外，如果是，则返回-1。
     if (el < surfs[0]->el || el >= surfs[n]->el) {
         return -1;
     }
+    // 循环遍历仰角数组中的每个元素（除了第一个和最后一个）。
     for (int i = 1; i <= n - 1; i++) {
+        // 检查给定的仰角是否小于当前数组元素的仰角。
         if (el < surfs[i]->el) {
+            // 如果是，返回当前数组元素的前一个索引，即找到了给定仰角所在的区间。
             return i - 1;
         }
     }
@@ -563,8 +591,12 @@ int GRadarVolume::findElRange1(double el) const
    
 }
 
+// 插值同一仰角面上指定方位角和距离的数值
+// 这个函数的主要目的是在雷达体数据的径向方向上进行插值，以获取指定方位角和距离处的值。
+// 函数首先确定与指定方位角最接近的两条径向线，然后在这两条径向线上进行线性插值，以获取插值结果。函数使用二分查找来快速定位指定方位角所在的径向线。
 double GRadarVolume::interplateElRadialData(int isurf, double az, double r, double invalidValue) const
 {
+     // 获取指定仰角的雷达仰角数据
     const GRadialSurf* pSurf = surfs[isurf];
     double dopRes = pSurf->interval;
     size_t nd = pSurf->radials[0]->points.size();
@@ -638,6 +670,7 @@ double GRadarVolume::interplateElRadialData(int isurf, double az, double r, doub
     return vt + (vb - vt) * s;
 }
 
+// 径向数据插值,因为地图上的点很可能不落在雷达的径向上,所以要插值,el为仰角可能为小数????,az为方位角角度,r为传播路径弧长,invalid为无效值
 double GRadarVolume::interplateRadialData(double el, double az, double r, double invalid) const
 {
     int iel = findElRange1(el);

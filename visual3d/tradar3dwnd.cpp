@@ -89,9 +89,9 @@ const GRadarVolume* TRadar3DWnd::getCurRadarData()
 // 	网格化雷达数据,这个函数的主要目的是将雷达数据进行网格化处理，并将处理后的数据存储在一个vtkImageData对象中，以便后续的可视化处理。
 vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 {	
-	// 	渲染配置,包括不透明度,插值方式,光照等
+	// 	VTK渲染配置,包括不透明度,插值方式,光照,颜色条等
 	const GRenderConfig& config = GConfig::mRenderConfig;
-	// 	获取当前选择的一个雷达数据
+	// 	获取当前选择的雷达数据
 	const GRadarVolume* data = getCurRadarData();
 	if (!data) return nullptr;
 	//if (!data || data->surfs.size() == 0) return nullptr;
@@ -99,20 +99,28 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	//  保存一个时间戳
 	auto t0 = std::chrono::steady_clock::now();
 	double mx = 0, my = 0;
-	// 	坐标转换,将经纬度转换为web墨卡托坐标
+	// 	坐标转换,将雷达经纬度转换为web墨卡托坐标
 	GMapCoordConvert::lonLatToMercator(data->longitude, data->latitude, &mx, &my);
 	// 计算数据体边界范围
 	double x0 = 0, x1 = 0, y0 = 0, y1 = 0, z0 = 0, z1 = 0;
-	// 计算雷达数据体边界范围
+	// 计算雷达数据体边界范围,xyz三个方向上分别求出最大最小值,minZ即z0没有理解到意思!!!!
 	data->calcBoundBox(x0, x1, y0, y1, z0, z1);
 
-	// 	mGridRect:网格化范围（web墨卡托投影坐标）
+	// 是将选择框的网格化范围（web墨卡托投影坐标）相对于雷达数据的经纬度位置进行了调整
 	x0 = mGridRect.left() - mx;
 	x1 = mGridRect.right() - mx;
 	y0 = mGridRect.top() - my;
 	y1 = mGridRect.bottom() - my;
+	// 设置网格化范围
+	//rect->setRect(x0, y0, x1 - x0, y1 - y0);
+	//rect->setRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
+	qDebug("web墨卡托网格化范围:");
+	qDebug() << "x:[" << x0 << ',' << x1 << ']' << endl;
+	qDebug() << "y:[" << y0 << ',' << y1 << ']' << endl;
+	qDebug() << "z:[" << z0 << ',' << z1 << ']' << endl;
+	// 至此,雷达数据体的网格化范围已经确定--- 就是选择框所框起来的范围(xy一开始是雷达的范围,后面根据选择框修改了的,但是z没有修改) ---下面开始进行网格化处理
 
-	// 选择框的web墨卡托范围转经纬度坐标
+	// 选择框的web墨卡托范围(左上和右下)转经纬度坐标
 	double lon0 = 0, lat0 = 0;
 	GMapCoordConvert::mercatorToLonLat(mGridRect.left(), mGridRect.top(), &lon0, &lat0);
 	double lon1 = 0, lat1 = 0;
@@ -127,13 +135,6 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 	GRadarAlgorithm::lonLatToGrid(lon1, lat1, 0,
 		data->longitude, data->latitude, data->elev,
 		&gx1, &gy1);
-	// 设置网格化范围
-	//rect->setRect(x0, y0, x1 - x0, y1 - y0);
-	//rect->setRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
-	qDebug("web墨卡托网格化范围:");
-	qDebug() << "x:[" << x0 << ',' << x1 << ']' << endl;
-	qDebug() << "y:[" << y0 << ',' << y1 << ']' << endl;
-	qDebug() << "z:[" << z0 << ',' << z1 << ']' << endl;
 
 	// 找到离网格中心最远的点
 	double maxX = std::max(abs(gx0), abs(gx1));
@@ -177,6 +178,7 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 		nx / 2, ny / 2, nz / 4, // 粗略一点降低计算量
 		range[0], range[1]);
 
+	// 综合起来，这段代码的目的是创建一个用于存储网格化后标量数据的 vtkFloatArray 对象，其中数组中的每个元素对应一个标量值，元组的数量由网格的维度决定。
 	vtkNew<vtkFloatArray> dataArray;
 	dataArray->SetNumberOfComponents(1);
 	dataArray->SetNumberOfTuples(static_cast<vtkIdType>(nx) * ny * nz);
@@ -190,6 +192,8 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 
 	//double spaceX = (gx1 - gx0) / (nx - 1);
 	//double spaceY = (gy1 - gy0) / (ny - 1);
+
+	// spaceX、spaceY 和 spaceZ 分别表示 x、y 和 z 方向上的间距
 	double spaceX = (x1 - x0) / (nx - 1);
 	double spaceY = (y1 - y0) / (ny - 1);
 	double spaceZ = (gz1 - gz0) / (nz - 1);
@@ -199,10 +203,14 @@ vtkSmartPointer<vtkImageData> TRadar3DWnd::griddingData(QRectF* rect)
 		<< "spaceY:" << spaceY << endl
 		<< "spaceZ:" << spaceZ << endl;
 
+	// 智能指针对象 imageData，该指针指向一个新创建的 vtkImageData 实例
+	// dataArray 关联到图像数据的点数据上，作为标量数据。这表示每个图像数据点都有一个对应的标量值
 	imageData->GetPointData()->SetScalars(dataArray);
+	// 间距
 	imageData->SetSpacing(spaceX, spaceY, spaceZ);
+	// 设置图像数据的原点，即数据坐标系的起始点。这里的原点被设置在 z 方向上，使其与雷达的高度相关。
 	imageData->SetOrigin(0, 0, (data->elev + gz0));
-	
+	// 这里 rect 被设置为 x 和 y 方向上的范围（宽度和高度）
 	rect->setRect(0, 0, x1 - x0, y1 - y0);
 	//imageData->SetOrigin(-0.5 * spaceX * (nx - 1), -0.5 * spaceY * (ny - 1), (data->elev + gz0));
 	//rect->setRect(-0.5 * spaceX * (nx - 1), -0.5 * spaceY * (ny - 1), x1 - x0, y1 - y0);
@@ -1221,7 +1229,7 @@ void TRadar3DWnd::render()
 	QTime timer;
 	timer.start();
 	//  和渲染预测后的雷达数据体唯一的区别就是这里
-	// 	获取雷达数据的网格化表示，并存储在 mImageData 中
+	// 	获取雷达数据的网格化表示,并存储在 mImageDataVTK图像数据体中
 	mImageData = griddingData(&rect);
 	qDebug() << "Griding Data time: " << timer.elapsed();
 
@@ -1264,7 +1272,7 @@ void TRadar3DWnd::render()
 		qDebug() << "Smooth fail";
 		return;
 	}
-	// 可视化控件,设置xyz方向
+	// 设置雷达可视化数据
 	mVisualWidget->setImageData(mImageData);
 
 	// mIsRendered是是否已经渲染过的标志
@@ -1310,7 +1318,8 @@ void TRadar3DWnd::render()
 		qDebug() << "toVtkPolyData + Texture map: " << dtime.count() << " milliseconds" << endl;
 
 		// 创建纹理
-		vtkSmartPointer<vtkImageData> terrainImage = VTKUtil::toVtkImageData(&mMapImage);
+		vtkSmartPointer<vtkImageData> terrainImage = VTKUtil::toVtkImageData(&mMapImage); // mMapImage是矩形框框出来的地图
+		// 设置地图的纹理
 		mVisualWidget->setTerrainData(terrainPolyData, terrainImage);
 
 		const GRenderConfig& config = GConfig::mRenderConfig;
@@ -1319,7 +1328,7 @@ void TRadar3DWnd::render()
 		mVisualWidget->resetCamera();
 		mIsRendered = true;
 	}
-	// 渲染场景
+	// 渲染场景,显示,地图和雷达数据
 	mVisualWidget->renderScene();
 }
 // 	渲染 -- 预测后的数据体

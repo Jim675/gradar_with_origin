@@ -733,7 +733,7 @@ void GMapView::mouseMoveEvent(QMouseEvent* e)
         }
     }
 }
-
+// 选好矩形框后,触发onSelectedRect函数,生成三维雷达可视化窗口
 void GMapView::mouseReleaseEvent(QMouseEvent* e)
 {
     if (mIsRightDrag && e->button() == Qt::RightButton) {
